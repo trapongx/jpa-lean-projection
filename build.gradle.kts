@@ -1,6 +1,10 @@
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.collections.plus
 
 val javaSdkVersion: String by project
+val javaPersistenceVersion: String by project
+val junitJupiterVersion: String by project
 
 plugins {
     kotlin("jvm")
@@ -14,7 +18,12 @@ repositories {
 }
 
 dependencies {
+    // Java Persistence
+    implementation("javax.persistence:javax.persistence-api:$javaPersistenceVersion")
+
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
 }
 
 tasks.test {
