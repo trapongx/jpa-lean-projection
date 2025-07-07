@@ -1,7 +1,8 @@
 package com.runninglane.jpa.projection.test.cases.simplevalue
 
-import com.runninglane.jpa.projection.queryWithProjection
 import com.runninglane.jpa.projection.test.BaseTest
+import com.runninglane.jpa.projection.test.cases.simplevalue.SimpleValueTest.InnerDepth1.ProjectionAsInnerOfInnerInterface
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ContextConfiguration
@@ -81,8 +82,107 @@ class SimpleValueTest : BaseTest() {
     fun `should correctly project simple properties`() {
         createDefaultTestEntities()
 
-        entityManager.queryWithProjection<EntityWithSimpleValues, ProjectionWithExactTypes>()
+        projectAndVerifyEach(
+            EntityWithSimpleValues::class,
+            ProjectionWithExactTypes::class,
+            EntityWithSimpleValues::id,
+            ProjectionWithExactTypes::id,
+            2
+        ) { entity, projection ->
+            assertThat(projection.id).isEqualTo(entity.id)
+            // Compare all properties with the entity
+            assertThat(projection.boolean).isEqualTo(entity.boolean)
+            assertThat(projection.byte).isEqualTo(entity.byte)
+            assertThat(projection.short).isEqualTo(entity.short)
+            assertThat(projection.char).isEqualTo(entity.char)
+            assertThat(projection.int).isEqualTo(entity.int)
+            assertThat(projection.long).isEqualTo(entity.long)
+            assertThat(projection.float).isEqualTo(entity.float)
+            assertThat(projection.double).isEqualTo(entity.double)
+            assertThat(projection.string).isEqualTo(entity.string)
+            assertThat(projection.date?.time).isEqualTo(entity.date?.time)
+            assertThat(projection.localDate).isEqualTo(entity.localDate)
+            assertThat(projection.bigInteger).isEqualTo(entity.bigInteger)
+            assertThat(projection.bigDecimal?.stripTrailingZeros())
+                .isEqualTo(entity.bigDecimal?.stripTrailingZeros())
+            assertThat(projection.blob).isEqualTo(entity.blob)
+            assertThat(projection.clob).isEqualTo(entity.clob)
+            assertThat(projection.enum).isEqualTo(entity.enum)
+            assertThat(projection.uuid).isEqualTo(entity.uuid)
+            assertThat(projection.duration).isEqualTo(entity.duration)
+            assertThat(projection.instant).isEqualTo(entity.instant)
+        }
+    }
 
-        TODO("Not yet implemented")
+    @Test
+    fun `should successfully project with inner projection`() {
+        createDefaultTestEntities()
+
+        projectAndVerifyEach(
+            EntityWithSimpleValues::class,
+            ProjectionAsInnerInterface::class,
+            EntityWithSimpleValues::id,
+            ProjectionAsInnerInterface::id,
+            2
+        ) { entity, projection ->
+            assertThat(projection.id).isEqualTo(entity.id)
+            // Compare all properties with the entity
+            assertThat(projection.int).isEqualTo(entity.int)
+            assertThat(projection.long).isEqualTo(entity.long)
+        }
+    }
+
+    @Test
+    fun `should successfully project with inner projection at depth 2`() {
+        createDefaultTestEntities()
+
+        projectAndVerifyEach(
+            EntityWithSimpleValues::class,
+            ProjectionAsInnerOfInnerInterface::class,
+            EntityWithSimpleValues::id,
+            ProjectionAsInnerOfInnerInterface::id,
+            2
+        ) { entity, projection ->
+            assertThat(projection.id).isEqualTo(entity.id)
+            // Compare all properties with the entity
+            assertThat(projection.int).isEqualTo(entity.int)
+            assertThat(projection.long).isEqualTo(entity.long)
+        }
+    }
+
+    @Test
+    fun `should map properties with different nullability successfully`() {
+        createDefaultTestEntities()
+
+        projectAndVerifyEach(
+            EntityWithSimpleValues::class,
+            ProjectionWithDifferentNullability::class,
+            EntityWithSimpleValues::id,
+            ProjectionWithDifferentNullability::id,
+            2
+        ) { entity, projection ->
+            assertThat(projection.id).isEqualTo(entity.id)
+            // Compare all properties with the entity
+            assertThat(projection.int).isEqualTo(entity.int)
+            assertThat(projection.long).isEqualTo(entity.long)
+        }
+    }
+
+    @Test
+    fun `should fail mapping property nullable to non-nullable when value is null`() {
+        repeat(2) {
+            entityManager.persist(
+                EntityWithSimpleValues().apply {
+                    long = null
+                }
+            )
+        }
+        entityManager.flush()
+
+        projectAndExpectException(
+            EntityWithSimpleValues::class,
+            ProjectionWithDifferentNullability::class,
+            IllegalArgumentException::class
+        )
     }
 }

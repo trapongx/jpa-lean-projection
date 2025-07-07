@@ -5,6 +5,7 @@ import kotlin.collections.plus
 val javaSdkVersion: String by project
 val javaPersistenceVersion: String by project
 val junitJupiterVersion: String by project
+val dtoBuddyVersion: String by project
 
 plugins {
     kotlin("jvm")
@@ -25,6 +26,12 @@ repositories {
 dependencies {
     // Java persistence
     implementation("javax.persistence:javax.persistence-api:$javaPersistenceVersion")
+
+    // Kotlin Reflection
+    implementation(kotlin("reflect"))
+
+    // Runtime DTO class generation
+    implementation("com.runninglane:dto-buddy:${dtoBuddyVersion}")
 
     // Kotlin test assertions
     testImplementation(kotlin("test"))
