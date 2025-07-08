@@ -8,6 +8,10 @@ val junitJupiterVersion: String by project
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.jpa")
+    kotlin("plugin.spring")
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
 }
 
 group = "com.runninglane"
@@ -15,15 +19,23 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
-    // Java Persistence
+    // Java persistence
     implementation("javax.persistence:javax.persistence-api:$javaPersistenceVersion")
 
+    // Kotlin test assertions
     testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+    // Persistence context for testing
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    testImplementation("com.h2database:h2")
 }
 
 tasks.test {

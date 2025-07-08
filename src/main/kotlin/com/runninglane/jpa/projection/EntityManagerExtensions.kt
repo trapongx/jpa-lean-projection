@@ -10,3 +10,7 @@ fun <E : Any, P : Any> EntityManager.queryWithProjection(
 ): List<P> {
     TODO("Not yet implemented")
 }
+
+@JvmSynthetic
+inline fun <reified E : Any, reified P : Any> EntityManager.queryWithProjection() =
+    queryWithProjection(E::class, P::class)
