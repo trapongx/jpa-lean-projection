@@ -27,7 +27,7 @@ internal class EntityClassMapper(
     private val parent: Mapper?,
     val entityClass: KClass<*>,
     val projectionClass: KClass<*>,
-    val projectionClassImpl: KClass<*>,
+    override val projectionClassImpl: KClass<*>,
     hadJoinFetch: Boolean,
     projectedPropertyNames: List<String>? // Not null when used by fetcher
 ) : BaseEntityClassMapper {
@@ -183,7 +183,7 @@ internal class EntityClassMapper(
 
     override fun readId(tuple: Tuple): Any? = when (idMappers.size) {
         1 -> tuple[idMappers.first().tupleIndex]
-        else -> idMappers.associate { it.tupleIndex to tuple[it.tupleIndex] }
+        else -> idMappers.associate { it.propertyName to tuple[it.tupleIndex] }
     }
 
     override fun isIdNull(tuple: Tuple): Boolean = idMappers.all { tuple[it.tupleIndex] == null }

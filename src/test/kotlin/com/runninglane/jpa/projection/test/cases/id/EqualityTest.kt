@@ -211,4 +211,42 @@ class EqualityTest : BaseTest() {
         assertThat(projection1).isEqualTo(projection1SecondQuery)
         assertThat(projection1).isNotEqualTo(projection2)
     }
+
+    @Test
+    fun `should project associations to entities having composite ID correctly`() {
+        val entity1 = EntityWithCompositeId().apply {
+            id1 = 1
+            id2 = 2
+            name = "Test 1"
+        }.also { entityManager.persist(it) }
+
+        val entity2 = EntityWithCompositeId().apply {
+            id1 = 3
+            id2 = 4
+            name = "Test 2"
+        }.also { entityManager.persist(it) }
+
+        val holder = EntityHoldingEntityWithCompositeId().apply {
+            single = entity1
+            list = listOf(entity1, entity2)
+        }.also { entityManager.persist(it) }
+
+        entityManager.flush()
+        entityManager.clear()
+
+        val holderProjection = entityManager.queryWithProjection<EntityHoldingEntityWithCompositeId, EntityHoldingEntityWithCompositeIdProjection>(
+            predicateBuilder = { cb, query, root ->
+                cb.equal(root.get<Long>("id"), holder.id)
+            }
+        ).single()
+
+        assertThat(holderProjection.list).hasSize(2)
+
+        val projection1 = holderProjection.list?.first { it.id1 == entity1.id1 && it.id2 == entity1.id2 }
+        val projection2 = holderProjection.list?.first { it.id1 == entity2.id1 && it.id2 == entity2.id2 }
+
+        assertThat(holderProjection.single).isSameAs(projection1)
+        assertThat(projection1?.name).isEqualTo(entity1.name)
+        assertThat(projection2?.name).isEqualTo(entity2.name)
+    }
 }

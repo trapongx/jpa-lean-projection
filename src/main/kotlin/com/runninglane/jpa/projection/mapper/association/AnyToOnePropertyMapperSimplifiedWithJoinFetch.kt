@@ -1,13 +1,12 @@
 package com.runninglane.jpa.projection.mapper.association
 
-import com.runninglane.jpa.projection.reflection.annotatedWith
-import com.runninglane.jpa.projection.reflection.getAnnotation
 import com.runninglane.jpa.projection.HydrationMaterial
-import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
+import com.runninglane.jpa.projection.reflection.annotatedWith
+import com.runninglane.jpa.projection.reflection.getAnnotation
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Tuple
@@ -51,7 +50,9 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
         null
     )
 
-    private val idMapper = mapper.getChildren().filterIsInstance<SameTypePropertyMapper>().first { it.isIdProperty }
+    private val propTypeImpl = mapper.projectionClassImpl
+
+    private val idMappers = mapper.getChildren().filterIsInstance<SameTypePropertyMapper>().filter { it.isIdProperty }
 
     private val propertyAccessor = PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName)
 
@@ -75,17 +76,20 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
         parentProjection: Any?,
         projectionIdentityMap: ProjectionIdentityMap
     ): Pair<List<Fetcher>, HydrationMaterial?> {
-        val id = tuple[idMapper.tupleIndex]
+        val id = when (idMappers.size) {
+            1 -> tuple[idMappers.first().tupleIndex]
+            else -> idMappers.associate { it.propertyName to tuple[it.tupleIndex] }
+        }
         val (instance, result) = when (id) {
             null -> null to (emptyList<Fetcher>() to null)
 
             else -> {
-                val reusableInstance = projectionIdentityMap.get(srcPropType, propType, id)
+                val reusableInstance = projectionIdentityMap.get(srcPropType, propTypeImpl, id)
 
                 when (reusableInstance) {
                     null -> {
                         val newInstance = projectorFactory.projectionFactory.create(srcPropType, propType).also {
-                            projectionIdentityMap.add(srcPropType, propType, id, it)
+                            projectionIdentityMap.add(srcPropType, propTypeImpl, id, it)
                         }
                         val result = mapper.readTuple(tuple, newInstance, projection, projectionIdentityMap)
                         newInstance to result

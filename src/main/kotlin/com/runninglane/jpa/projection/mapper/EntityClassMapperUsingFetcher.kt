@@ -15,7 +15,7 @@ internal class EntityClassMapperUsingFetcher(
     private val parent: Mapper?,
     val entityClass: KClass<*>,
     val projectionClass: KClass<*>,
-    val projectionClassImpl: KClass<*>
+    override val projectionClassImpl: KClass<*>
 ) : BaseEntityClassMapper {
 
     init {
@@ -58,7 +58,7 @@ internal class EntityClassMapperUsingFetcher(
                 return@run null
 
             val newInstance = projectorFactory.projectionFactory.create(entityClass, projectionClass).also {
-                projectionIdentityMap.add(entityClass, projectionClass, id, it)
+                projectionIdentityMap.add(entityClass, projectionClassImpl, id, it)
             }
             EntityClassFetcher(projectorFactory, entityClass, projectionClass, listOf(newInstance))
         }

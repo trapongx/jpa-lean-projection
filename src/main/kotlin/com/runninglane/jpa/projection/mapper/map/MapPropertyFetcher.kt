@@ -107,7 +107,7 @@ internal class MapPropertyFetcher(
                             val instance = projectionIdentityMap.get(mapper.entityClass, mapper.projectionClass, id)
                                 ?: projectorFactory.projectionFactory
                                     .create(mapper.entityClass, mapper.projectionClass)
-                                    .also { projectionIdentityMap.add(mapper.entityClass, mapper.projectionClass, id, it) }
+                                    .also { projectionIdentityMap.add(mapper.entityClass, mapper.projectionClassImpl, id, it) }
                             prop.setter.call(instance)
                             mapper.readTuple(tuple, instance, projection, projectionIdentityMap)
                                 .also { fetchers.addAll(it.first) }
