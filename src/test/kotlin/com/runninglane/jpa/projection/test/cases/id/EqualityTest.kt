@@ -66,6 +66,7 @@ class EqualityTest : BaseTest() {
 
         assertThat(projection1).isNotSameAs(projection1SecondQuery)
         assertThat(projection1).isEqualTo(projection1SecondQuery)
+        assertThat(projection1).isNotEqualTo(projection2)
     }
 
     @Test
@@ -95,6 +96,47 @@ class EqualityTest : BaseTest() {
 
         assertThat(projection).isNotSameAs(projectionSecondQuery)
         assertThat(projection).isEqualTo(projectionSecondQuery)
+    }
+
+    @Test
+    fun `2 projections of different entities with embedded ID should be not equals`() {
+        val entity1 = EntityWithEmbeddedId().apply {
+            id = EmbeddableId().apply {
+                id1 = 1
+                id2 = 2
+            }
+            name = "Test 1"
+        }.also { entityManager.persist(it) }
+
+        val entity2 = EntityWithEmbeddedId().apply {
+            id = EmbeddableId().apply {
+                id1 = 3
+                id2 = 4
+            }
+            name = "Test 2"
+        }.also { entityManager.persist(it) }
+
+        entityManager.flush()
+        entityManager.clear()
+
+        val projections = entityManager.queryWithProjection<EntityWithEmbeddedId, EntityWithEmbeddedIdProjection>()
+
+        assertThat(projections).hasSize(2)
+
+        val projection1 = projections.first { it.id == entity1.id }
+        val projection2 = projections.single { it.id == entity2.id}
+
+        assertThat(projection1).isNotSameAs(projection2)
+
+        val projection1SecondQuery = entityManager.queryWithProjection<EntityWithEmbeddedId, EntityWithEmbeddedIdProjection>(
+            predicateBuilder = { cb, query, root ->
+                cb.equal(root.get<Long>("id"), entity1.id)
+            }
+        ).single()
+
+        assertThat(projection1).isNotSameAs(projection1SecondQuery)
+        assertThat(projection1).isEqualTo(projection1SecondQuery)
+        assertThat(projection1).isNotEqualTo(projection2)
     }
 
     @Test
@@ -128,5 +170,45 @@ class EqualityTest : BaseTest() {
 
         assertThat(projection).isNotSameAs(projectionSecondQuery)
         assertThat(projection).isEqualTo(projectionSecondQuery)
+    }
+
+    @Test
+    fun `2 projections of different entities with composite ID should be not equals`() {
+        val entity1 = EntityWithCompositeId().apply {
+            id1 = 1
+            id2 = 2
+            name = "Test 1"
+        }.also { entityManager.persist(it) }
+
+        val entity2 = EntityWithCompositeId().apply {
+            id1 = 3
+            id2 = 4
+            name = "Test 2"
+        }.also { entityManager.persist(it) }
+
+        entityManager.flush()
+        entityManager.clear()
+
+        val projections = entityManager.queryWithProjection<EntityWithCompositeId, EntityWithCompositeIdProjection>()
+
+        assertThat(projections).hasSize(2)
+
+        val projection1 = projections.first { it.id1 == entity1.id1 && it.id2 == entity1.id2 }
+        val projection2 = projections.single { it.id1 == entity2.id1 && it.id2 == entity2.id2 }
+
+        assertThat(projection1).isNotSameAs(projection2)
+
+        val projection1SecondQuery = entityManager.queryWithProjection<EntityWithCompositeId, EntityWithCompositeIdProjection>(
+            predicateBuilder = { cb, query, root ->
+                cb.and(
+                cb.equal(root.get<Long>("id1"), entity1.id1),
+                    cb.equal(root.get<Long>("id2"), entity1.id2)
+                )
+            }
+        ).single()
+
+        assertThat(projection1).isNotSameAs(projection1SecondQuery)
+        assertThat(projection1).isEqualTo(projection1SecondQuery)
+        assertThat(projection1).isNotEqualTo(projection2)
     }
 }
