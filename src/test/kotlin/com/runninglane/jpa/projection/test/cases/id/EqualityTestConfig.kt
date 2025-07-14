@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.test.cases.equality
+package com.runninglane.jpa.projection.test.cases.id
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.domain.EntityScan

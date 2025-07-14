@@ -1,9 +1,7 @@
-package com.runninglane.jpa.projection.test.cases.equality
+package com.runninglane.jpa.projection.test.cases.id
 
 import javax.persistence.EmbeddedId
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
 
 @Entity
 class EntityWithEmbeddedId {

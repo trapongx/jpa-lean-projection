@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.test.cases.equality
+package com.runninglane.jpa.projection.test.cases.id
 
 import java.io.Serializable
 import javax.persistence.Embeddable

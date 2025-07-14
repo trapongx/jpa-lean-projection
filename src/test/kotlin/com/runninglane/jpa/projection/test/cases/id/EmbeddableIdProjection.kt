@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.test.cases.equality
+package com.runninglane.jpa.projection.test.cases.id
 
 interface EmbeddableIdProjection {
     var id1: Long
