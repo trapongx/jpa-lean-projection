@@ -8,11 +8,13 @@ val junitJupiterVersion: String by project
 val dtoBuddyVersion: String by project
 
 plugins {
+    java
     kotlin("jvm")
     kotlin("plugin.jpa")
     kotlin("plugin.spring")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    `maven-publish`
 }
 
 group = "com.runninglane"
@@ -48,6 +50,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(javaSdkVersion.toInt()))
@@ -58,6 +61,20 @@ kotlin {
         kotlinOptions {
             // Enable JSR-305 strict mode for proper nullability with Java interop
             freeCompilerArgs += "-Xjsr305=strict"
+        }
+    }
+}
+
+// Configure Java plugin first to properly enable withSourcesJar
+java {
+    withSourcesJar()
+}
+
+// Add publishing configuration
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
         }
     }
 }
