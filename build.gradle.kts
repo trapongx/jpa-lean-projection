@@ -18,7 +18,7 @@ plugins {
 }
 
 group = "com.runninglane"
-version = "1.0-SNAPSHOT"
+version = "1.7.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
