@@ -71,8 +71,8 @@ internal class EntityClassMapper(
             .map { it.name }
             .sorted()
             .also {
-                require(it.size == 1) {
-                    "Expected 1 ID property but found ${it.size}. Entity class `${entityClass.qualifiedName}`"
+                require(it.isNotEmpty()) {
+                    "Not ID properties found in entity class `${entityClass.qualifiedName}`"
                 }
             }
             .toMutableSet()
@@ -167,8 +167,8 @@ internal class EntityClassMapper(
         }
     }
 
-    private val idMapper: SameTypePropertyMapper =
-        mappers.filterIsInstance<SameTypePropertyMapper>().single { it.isIdProperty }
+    private val idMappers: List<SameTypePropertyMapper> =
+        mappers.filterIsInstance<SameTypePropertyMapper>().filter { it.isIdProperty }
 
     override fun getParent(): Mapper? = parent
 
@@ -181,9 +181,12 @@ internal class EntityClassMapper(
         tupleIndexCounter: TupleIndexCounter
     ): List<Expression<*>> = mappers.flatMap { it.buildSelections(path, tupleIndexCounter) }
 
-    override fun readId(tuple: Tuple): Any? = tuple[idMapper.tupleIndex]
+    override fun readId(tuple: Tuple): Any? = when (idMappers.size) {
+        1 -> tuple[idMappers.first().tupleIndex]
+        else -> idMappers.associate { it.tupleIndex to tuple[it.tupleIndex] }
+    }
 
-    override fun isIdNull(tuple: Tuple): Boolean = tuple.get(idMapper.tupleIndex) == null
+    override fun isIdNull(tuple: Tuple): Boolean = idMappers.all { tuple[it.tupleIndex] == null }
 
     override fun readTuple(
         tuple: Tuple,
