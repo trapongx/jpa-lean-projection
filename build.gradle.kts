@@ -33,7 +33,7 @@ dependencies {
     implementation(kotlin("reflect"))
 
     // Runtime DTO class generation
-    implementation("com.runninglane:dto-buddy:${dtoBuddyVersion}")
+    api("com.runninglane:dto-buddy:${dtoBuddyVersion}")
 
     // Kotlin test assertions
     testImplementation(kotlin("test"))
