@@ -1,7 +1,7 @@
 package com.runninglane.jpa.projection
 
 import com.runninglane.dto.buddy.bytecode.PropertyDescriptor
-import com.runninglane.dto.buddy.bytecode.compile.CompileKotlinByteCodeStrategyCompliment
+import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenerator
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.squareup.kotlinpoet.*
 import javax.persistence.EmbeddedId
@@ -9,7 +9,7 @@ import javax.persistence.Id
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-open class ProjectionCodeGenContributor : CompileKotlinByteCodeStrategyCompliment() {
+open class ProjectionCodeGenContributor : KotlinCodeGenerator() {
 
     class DataCollector(val entityClass: KClass<*>, val baseClass: KClass<*>) {
         lateinit var className: String
@@ -97,15 +97,5 @@ open class ProjectionCodeGenContributor : CompileKotlinByteCodeStrategyComplimen
         }
 
         return updatedBuilder
-    }
-
-    override fun loadClass(
-        builder: TypeSpec.Builder,
-        packageName: String,
-        className: String,
-        dataCollector: Any?
-    ): KClass<*> {
-
-        return super.loadClass(builder, packageName, className, dataCollector)
     }
 }

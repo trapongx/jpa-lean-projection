@@ -1,12 +1,13 @@
 package com.runninglane.jpa.projection
 
 import com.runninglane.dto.buddy.DtoBuddy
-import com.runninglane.dto.buddy.bytecode.ThreeStepsByteCodeStrategy
+import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenBasedByteCodeStrategy
 import kotlin.reflect.KClass
 
 class ProjectionFactory(
-    val dtoBuddy: DtoBuddy =
-        DtoBuddy(ThreeStepsByteCodeStrategy(ProjectionCodeGenContributor()))
+    val dtoBuddy: DtoBuddy = DtoBuddy(
+        KotlinCodeGenBasedByteCodeStrategy(ProjectionCodeGenContributor())
+    )
 ) {
     // This is Map<Pair<projectionClass, entityClass>, implementationClass>
     private val implementationMap = mutableMapOf<Pair<KClass<*>, KClass<*>>, KClass<*>>()

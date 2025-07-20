@@ -1,8 +1,7 @@
 package com.runninglane.jpa.projection.test.cases.customproperties
 
 import com.runninglane.dto.buddy.DtoBuddy
-import com.runninglane.dto.buddy.bytecode.ThreeStepsByteCodeStrategy
-import com.runninglane.jpa.projection.ProjectionCodeGenContributor
+import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenBasedByteCodeStrategy
 import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.queryWithProjection
 import com.runninglane.jpa.projection.test.BaseTest
@@ -18,7 +17,7 @@ import kotlin.test.fail
 @DataJpaTest
 @ContextConfiguration(classes = [CustomPropertiesTestConfiguration::class])
 class CustomPropertiesTest : BaseTest(
-    DtoBuddy(ThreeStepsByteCodeStrategy(CustomProjectionCodeGenContributor()))
+    DtoBuddy(KotlinCodeGenBasedByteCodeStrategy(CustomProjectionCodeGenContributor()))
 ) {
 
     private val projectionFactory: ProjectionFactory
