@@ -37,7 +37,7 @@ dependencies {
     api("com.runninglane:dto-buddy:${dtoBuddyVersion}")
 
     // Runtime facade class generation
-    implementation("com.runninglane:snap-facade:${snapFacadeVersion}")
+    api("com.runninglane:snap-facade:${snapFacadeVersion}")
 
     // Kotlin test assertions
     testImplementation(kotlin("test"))
