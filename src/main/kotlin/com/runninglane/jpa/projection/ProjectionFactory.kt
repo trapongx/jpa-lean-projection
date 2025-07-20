@@ -16,7 +16,7 @@ class ProjectionFactory(
         return implementationMap.getOrPut(key) {
             dtoBuddy.implement(
                 projectionClass,
-                dataCollector = ProjectionCodeGenContributor.DataCollector(entityClass)
+                dataCollector = ProjectionCodeGenContributor.DataCollector(entityClass, projectionClass)
             )
         }
     }

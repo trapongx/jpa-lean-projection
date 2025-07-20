@@ -11,8 +11,7 @@ import kotlin.reflect.full.memberProperties
 
 open class ProjectionCodeGenContributor : CompileKotlinByteCodeStrategyCompliment() {
 
-    class DataCollector(val entityClass: KClass<*>) {
-        lateinit var baseClass: KClass<*>
+    class DataCollector(val entityClass: KClass<*>, val baseClass: KClass<*>) {
         lateinit var className: String
         val attributes: MutableMap<String, Any?> = mutableMapOf()
     }
@@ -25,7 +24,6 @@ open class ProjectionCodeGenContributor : CompileKotlinByteCodeStrategyComplimen
         dataCollector: Any?
     ): TypeSpec.Builder {
         dataCollector as DataCollector
-        dataCollector.baseClass = baseClass
         dataCollector.className = className
 
         return super.defineClass(baseClass, typeParams, packageName, className, dataCollector)
