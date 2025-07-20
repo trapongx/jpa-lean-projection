@@ -9,7 +9,7 @@ import javax.persistence.Id
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-open class ProjectionCodeGenContributor : KotlinCodeGenerator() {
+open class ProjectionCodeGenerator : KotlinCodeGenerator() {
 
     class DataCollector(val entityClass: KClass<*>, val baseClass: KClass<*>) {
         lateinit var className: String

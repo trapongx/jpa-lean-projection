@@ -1,14 +1,14 @@
 package com.runninglane.jpa.projection.test.cases.customproperties
 
 import com.runninglane.dto.buddy.bytecode.PropertyDescriptor
-import com.runninglane.jpa.projection.ProjectionCodeGenContributor
+import com.runninglane.jpa.projection.ProjectionCodeGenerator
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-class CustomProjectionCodeGenContributor : ProjectionCodeGenContributor() {
+class CustomProjectionCodeGenerator : ProjectionCodeGenerator() {
     override fun implementProperties(
         builder: TypeSpec.Builder,
         properties: List<PropertyDescriptor>,

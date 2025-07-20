@@ -17,7 +17,7 @@ import kotlin.test.fail
 @DataJpaTest
 @ContextConfiguration(classes = [CustomPropertiesTestConfiguration::class])
 class CustomPropertiesTest : BaseTest(
-    DtoBuddy(KotlinCodeGenBasedByteCodeStrategy(CustomProjectionCodeGenContributor()))
+    DtoBuddy(KotlinCodeGenBasedByteCodeStrategy(CustomProjectionCodeGenerator()))
 ) {
 
     private val projectionFactory: ProjectionFactory

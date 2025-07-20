@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 
 class ProjectionFactory(
     val dtoBuddy: DtoBuddy = DtoBuddy(
-        KotlinCodeGenBasedByteCodeStrategy(ProjectionCodeGenContributor())
+        KotlinCodeGenBasedByteCodeStrategy(ProjectionCodeGenerator())
     )
 ) {
     // This is Map<Pair<projectionClass, entityClass>, implementationClass>
@@ -17,7 +17,7 @@ class ProjectionFactory(
         return implementationMap.getOrPut(key) {
             dtoBuddy.implement(
                 projectionClass,
-                dataCollector = ProjectionCodeGenContributor.DataCollector(entityClass, projectionClass)
+                dataCollector = ProjectionCodeGenerator.DataCollector(entityClass, projectionClass)
             )
         }
     }
