@@ -6,6 +6,7 @@ val javaSdkVersion: String by project
 val javaPersistenceVersion: String by project
 val junitJupiterVersion: String by project
 val dtoBuddyVersion: String by project
+val snapFacadeVersion: String by project
 
 plugins {
     java
@@ -34,6 +35,9 @@ dependencies {
 
     // Runtime DTO class generation
     api("com.runninglane:dto-buddy:${dtoBuddyVersion}")
+
+    // Runtime facade class generation
+    implementation("com.runninglane:snap-facade:${snapFacadeVersion}")
 
     // Kotlin test assertions
     testImplementation(kotlin("test"))

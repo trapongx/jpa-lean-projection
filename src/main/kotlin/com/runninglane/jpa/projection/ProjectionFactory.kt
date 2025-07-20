@@ -26,3 +26,9 @@ class ProjectionFactory(
         return dtoBuddy.create(getImplementation(entityClass, projectionClass))
     }
 }
+
+inline fun <reified E, reified P> ProjectionFactory.getImplementation(): KClass<*> =
+    getImplementation(E::class, P::class)
+
+inline fun <reified E, reified P : Any> ProjectionFactory.create(): P =
+    create(E::class, P::class)
