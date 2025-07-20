@@ -7,7 +7,7 @@ class FacadeFactory(
 ) {
     private val snapFacadeFactory = com.runninglane.facade.FacadeFactory(annotationForPropertyInheriting)
 
-    fun <P : Any, E : Any> FacadeFactory.fromEntity(
+    fun <P : Any, E : Any> fromEntity(
         projectionClass: KClass<P>,
         entityClass: KClass<E>,
         entity: E
