@@ -6,13 +6,11 @@ import javax.persistence.MappedSuperclass
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.allSuperclasses
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.superclasses
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.*
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.jvmErasure
 
 /**
  * @return itself or superclass that declared with @Entity or @MappedSuperclass
@@ -86,4 +84,14 @@ internal inline fun <reified T> KProperty<*>.findAnnotationInHierarchy(): T? whe
     }
 
     return null
+}
+
+fun KClass<*>.getPropertyAtPath(path: String): KProperty1<*, *> {
+    return path.split('.')
+        .fold(null as KProperty1<*, *>? to this) { (_, currentClass), name ->
+            val nextProp = currentClass.memberProperties.firstOrNull { it.name == name }
+                ?: error("Property $name not found in class ${currentClass.qualifiedName}")
+            val nextClass = nextProp.returnType.jvmErasure
+            nextProp to nextClass
+        }.first!!
 }

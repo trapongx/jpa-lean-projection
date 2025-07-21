@@ -7,6 +7,7 @@ import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.runninglane.jpa.projection.reflection.getAnnotation
+import com.runninglane.jpa.projection.reflection.getPropertyAtPath
 import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Tuple
@@ -108,23 +109,18 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
         projectionClassOnRightSide: KClass<*>,
         propertyPath: String
     ): ProbablyInvertible.AssociationInvertibilityCheckResult {
-        val otherSrcProp: KProperty1<out Any, *> = entityClassOnRightSide.memberProperties
-            .first { it.name == propertyPath }
-
+        val otherSrcProp = entityClassOnRightSide.getPropertyAtPath(propertyPath)
         val otherSrcPropType = otherSrcProp.returnType.jvmErasure
-
-        val otherPropType: KClass<*> = projectionClassOnRightSide.memberProperties
-            .first { it.name == propertyPath }
-            .returnType.jvmErasure
+        val otherPropType: KClass<*> = projectionClassOnRightSide.getPropertyAtPath(propertyPath).returnType.jvmErasure
 
         val checkMappedBy by lazy {
             when {
                 srcProp.annotatedWith<OneToOne>() -> {
-                    otherSrcProp.getAnnotation<OneToOne>()?.mappedBy == this.propertyName
+                    otherSrcProp?.getAnnotation<OneToOne>()?.mappedBy == this.propertyName
                             || srcProp.getAnnotation<OneToOne>()?.mappedBy == propertyPath
                 }
 
-                else -> otherSrcProp.getAnnotation<OneToMany>()?.mappedBy == this.propertyName
+                else -> otherSrcProp?.getAnnotation<OneToMany>()?.mappedBy == this.propertyName
             }
         }
 

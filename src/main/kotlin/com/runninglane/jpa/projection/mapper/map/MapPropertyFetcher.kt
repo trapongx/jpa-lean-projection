@@ -9,6 +9,7 @@ import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.runninglane.jpa.projection.reflection.getAnnotation
 import com.runninglane.jpa.projection.reflection.getEntityClass
+import com.runninglane.jpa.projection.reflection.getPropertyAtPath
 import javax.persistence.EntityManager
 import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
@@ -124,20 +125,15 @@ internal class MapPropertyFetcher(
             projectionClassOnRightSide: KClass<*>,
             propertyPath: String
         ): ProbablyInvertible.AssociationInvertibilityCheckResult {
-            val otherSrcProp: KProperty1<out Any, *> = entityClassOnRightSide.memberProperties
-                .first { it.name == propertyPath }
-
+            val otherSrcProp = entityClassOnRightSide.getPropertyAtPath(propertyPath)
             val otherSrcPropType = otherSrcProp.returnType.jvmErasure
-
-            val otherPropType: KClass<*> = projectionClassOnRightSide.memberProperties
-                .first { it.name == propertyPath }
-                .returnType.jvmErasure
+            val otherPropType: KClass<*> = projectionClassOnRightSide.getPropertyAtPath(propertyPath).returnType.jvmErasure
 
             val srcProp = entityClass.memberProperties.first { it.name == propertyInfo.propertyName }
 
             val checkMappedBy by lazy {
                 srcProp.getAnnotation<OneToMany>()?.let { it.mappedBy == propertyPath } == true
-                        && otherSrcProp.annotatedWith<ManyToOne>()
+                        && otherSrcProp?.annotatedWith<ManyToOne>() == true
             }
 
             val isInversion = otherSrcPropType == entityClass
