@@ -3,7 +3,7 @@ package com.runninglane.jpa.projection.mapper
 import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
-import com.runninglane.jpa.projection.annotations.NoProjection
+import com.runninglane.jpa.projection.annotations.isAnnotatedForNoProjection
 import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.association.AnyToManyPropertyMapper
 import com.runninglane.jpa.projection.mapper.association.AnyToOnePropertyMapper
@@ -45,8 +45,8 @@ internal class EntityClassMapper(
     private val projectedProperties: List<KProperty1<out Any, *>> = projectionClassImpl.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
         .filterNot {
-            it.annotatedWith<NoProjection>()
-                    || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.annotatedWith<NoProjection>() == true
+            it.isAnnotatedForNoProjection()
+                    || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection() == true
         }
         .let { allProps ->
             if (projectedPropertyNames != null) {

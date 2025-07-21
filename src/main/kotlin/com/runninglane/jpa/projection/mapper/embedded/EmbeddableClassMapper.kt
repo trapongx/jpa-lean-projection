@@ -3,7 +3,7 @@ package com.runninglane.jpa.projection.mapper.embedded
 import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
-import com.runninglane.jpa.projection.annotations.NoProjection
+import com.runninglane.jpa.projection.annotations.isAnnotatedForNoProjection
 import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.association.AnyToManyPropertyMapper
@@ -40,8 +40,8 @@ internal class EmbeddableClassMapper(
         projectionClassImpl.memberProperties
             .filter { it.visibility == KVisibility.PUBLIC }
             .filterNot {
-                it.annotatedWith<NoProjection>()
-                        || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.annotatedWith<NoProjection>() == true
+                it.isAnnotatedForNoProjection()
+                        || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection() == true
             }
             .map { prop ->
                 val propName = prop.name
