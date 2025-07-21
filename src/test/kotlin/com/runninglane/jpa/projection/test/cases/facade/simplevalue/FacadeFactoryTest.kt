@@ -1,6 +1,6 @@
 package com.runninglane.jpa.projection.test.cases.facade.simplevalue
 
-import com.runninglane.jpa.projection.facade.FacadeFactory
+import com.runninglane.facade.FacadeFactory
 import com.runninglane.jpa.projection.facade.toEntity
 import com.runninglane.jpa.projection.queryWithProjection
 import com.runninglane.jpa.projection.test.BaseTest
