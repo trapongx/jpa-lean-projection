@@ -4,6 +4,7 @@ import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.runninglane.jpa.projection.reflection.getAnnotation
@@ -32,11 +33,7 @@ internal class AnyToOnePropertyMapper(
 ) : SimplifiableMapper, PropertyMapper, ProbablyInvertible {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     private val srcProp: KProperty1<out Any, *> = entityClass.memberProperties.firstOrNull { it.name == propertyName }
@@ -48,7 +45,6 @@ internal class AnyToOnePropertyMapper(
         .first { it.name == propertyName }
 
     private val propType: KClass<*> = prop.returnType.jvmErasure
-        .let { projectorFactory.projectionFactory.getImplementation(srcPropType, it) }
 
     private val isInversion: Boolean = run {
         generateSequence(parent) { it.getParent() }

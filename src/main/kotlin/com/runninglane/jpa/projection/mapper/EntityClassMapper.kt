@@ -4,6 +4,7 @@ import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.annotations.NoProjection
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.association.AnyToManyPropertyMapper
 import com.runninglane.jpa.projection.mapper.association.AnyToOnePropertyMapper
 import com.runninglane.jpa.projection.mapper.elementcollection.ElementCollectionPropertyMapper
@@ -32,11 +33,7 @@ internal class EntityClassMapper(
 ) : BaseEntityClassMapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     private var hasJoinFetch: Boolean = false
@@ -219,11 +216,7 @@ internal class EntityClassMapper(
             val projectedPropertyNames: Set<String>?
         ) {
             init {
-                assert(
-                    projectionClass != projectionClassImpl
-                            && !projectionClassImpl.isAbstract
-                            && projectionClassImpl.isSubclassOf(projectionClass)
-                )
+                assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
             }
         }
 

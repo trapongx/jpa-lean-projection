@@ -5,6 +5,7 @@ import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.annotations.NoProjection
 import com.runninglane.jpa.projection.mapper.*
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.association.AnyToManyPropertyMapper
 import com.runninglane.jpa.projection.mapper.association.AnyToOnePropertyMapper
 import com.runninglane.jpa.projection.mapper.elementcollection.ElementCollectionPropertyMapper
@@ -30,11 +31,7 @@ internal class EmbeddableClassMapper(
 ) : Mapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(embeddableClass, projectionClass, projectionClassImpl))
     }
 
     private var hasJoinFetch: Boolean = false

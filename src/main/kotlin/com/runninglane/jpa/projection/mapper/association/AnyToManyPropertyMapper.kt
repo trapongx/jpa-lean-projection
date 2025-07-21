@@ -2,6 +2,7 @@ package com.runninglane.jpa.projection.mapper.association
 
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import javax.persistence.criteria.From
 import javax.persistence.criteria.JoinType
 import javax.persistence.criteria.Path
@@ -22,11 +23,7 @@ internal class AnyToManyPropertyMapper(
 ) : SimplifiableMapper, PropertyMapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     private val srcProp: KProperty1<out Any, *> = entityClass.memberProperties
@@ -44,7 +41,6 @@ internal class AnyToManyPropertyMapper(
     private val propType: KClass<*> = prop.returnType.jvmErasure
 
     private val propTypeArgType: KClass<*> = prop.returnType.arguments.first().type!!.jvmErasure
-        .let { projectorFactory.projectionFactory.getImplementation(srcPropTypeArgType, it) }
 
     private val isCollection: Boolean = srcPropType == Collection::class
     private val isList: Boolean = srcPropType.isSubclassOf(List::class)

@@ -3,13 +3,13 @@ package com.runninglane.jpa.projection.mapper
 import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.isSubclassOf
 
 internal class EntityClassMapperUsingFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -20,11 +20,7 @@ internal class EntityClassMapperUsingFetcher(
 ) : BaseEntityClassMapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClass, entityClass)
@@ -58,7 +54,7 @@ internal class EntityClassMapperUsingFetcher(
 
             val id = readId(tuple)!!
 
-            val reusableInstance = projectionIdentityMap.get(entityClass, projectionClass, id)
+            val reusableInstance = projectionIdentityMap.get(entityClass, projectionClassImpl, id)
             if (reusableInstance != null)
                 return@run null
 

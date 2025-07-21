@@ -31,6 +31,9 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
 
     override val propertyName: String get() = propertyInfo.propertyName
 
+    private val projectionClassOnRightSideImpl = projectorFactory.projectionFactory
+        .getImplementation(entityClassOnRightSide, projectionClassOnRightSide)
+
     private val mapper: BaseEntityClassMapper = EntityClassMapper.of(
         projectorFactory,
         this,
@@ -61,14 +64,14 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
                 null to emptyList()
             } else {
                 val id = mapper.readId(tuple)!!
-                val reusableInstance = projectionIdentityMap.get(entityClassOnRightSide, projectionClassOnRightSide, id)
+                val reusableInstance = projectionIdentityMap.get(entityClassOnRightSide, projectionClassOnRightSideImpl, id)
 
                 when (reusableInstance) {
                     null -> {
                         val newInstance = projectorFactory.projectionFactory
                             .create(entityClassOnRightSide, projectionClassOnRightSide)
                             .also {
-                                projectionIdentityMap.add(entityClassOnRightSide, projectionClassOnRightSide, id, it)
+                                projectionIdentityMap.add(entityClassOnRightSide, projectionClassOnRightSideImpl, id, it)
                             }
                         val (fetchers, _) = mapper.readTuple(tuple, newInstance, projection, projectionIdentityMap)
                         newInstance to fetchers

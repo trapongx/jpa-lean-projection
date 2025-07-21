@@ -2,6 +2,7 @@ package com.runninglane.jpa.projection.mapper.elementcollection
 
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.map.MapPropertyMapper
 import com.runninglane.jpa.projection.reflection.getEmbeddableClass
 import com.runninglane.jpa.projection.reflection.getEntityClass
@@ -22,11 +23,7 @@ internal class ElementCollectionPropertyMapper(
 ) : SimplifiableMapper, PropertyMapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     private val srcProp: KProperty1<out Any, *> = entityClass.memberProperties
@@ -44,11 +41,9 @@ internal class ElementCollectionPropertyMapper(
     private val propType: KClass<*> = prop.returnType.jvmErasure
 
     private val propTypeArgType1: KClass<*> = prop.returnType.arguments.first().type!!.jvmErasure
-        .let { if (it.isAbstract) projectorFactory.projectionFactory.getImplementation(srcPropTypeArgType1, it) else it }
 
     private val propTypeArgType2: KClass<*> by lazy {
         prop.returnType.arguments.last().type!!.jvmErasure
-            .let { if (it.isAbstract) projectorFactory.projectionFactory.getImplementation(srcPropTypeArgType2, it) else it }
     }
 
     private val isCollection: Boolean = srcPropType == Collection::class

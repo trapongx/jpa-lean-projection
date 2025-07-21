@@ -3,11 +3,11 @@ package com.runninglane.jpa.projection.mapper
 import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 internal class EntityPropertyMapperUsingFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -19,11 +19,7 @@ internal class EntityPropertyMapperUsingFetcher(
 ) : Mapper {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     override fun getParent(): Mapper? = parent

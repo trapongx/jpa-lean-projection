@@ -2,10 +2,10 @@ package com.runninglane.jpa.projection.mapper
 
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
+import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import javax.persistence.EntityManager
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.isSubclassOf
 
 internal class EntityPropertyFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -17,11 +17,7 @@ internal class EntityPropertyFetcher(
 ) : Fetcher {
 
     init {
-        assert(
-            projectionClass != projectionClassImpl
-                    && !projectionClassImpl.isAbstract
-                    && projectionClassImpl.isSubclassOf(projectionClass)
-        )
+        assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
     }
 
     val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClassImpl, entityClass)
