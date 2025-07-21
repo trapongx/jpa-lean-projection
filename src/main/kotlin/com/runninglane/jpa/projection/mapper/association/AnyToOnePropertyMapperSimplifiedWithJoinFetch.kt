@@ -31,6 +31,14 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
     hadJoinFetch: Boolean
 ) : Mapper, ProbablyInvertible {
 
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
+
     private val srcProp: KProperty1<out Any, *> = entityClass.memberProperties.firstOrNull { it.name == propertyName }
         ?: error("Projected property `$propertyName` not found in class `${entityClass.qualifiedName}`")
 

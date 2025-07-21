@@ -10,6 +10,7 @@ import javax.persistence.Id
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 
 internal class SameTypePropertyMapper(

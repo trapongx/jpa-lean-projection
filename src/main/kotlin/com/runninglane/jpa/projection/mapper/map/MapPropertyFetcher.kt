@@ -33,6 +33,14 @@ internal class MapPropertyFetcher(
     private val projections: List<Any>
 ) : Fetcher {
 
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
+
     private val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClass, entityClass)
 
     private val mapper = AsMapper()

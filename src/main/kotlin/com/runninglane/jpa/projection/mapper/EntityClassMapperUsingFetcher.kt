@@ -9,6 +9,7 @@ import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.isSubclassOf
 
 internal class EntityClassMapperUsingFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -19,7 +20,11 @@ internal class EntityClassMapperUsingFetcher(
 ) : BaseEntityClassMapper {
 
     init {
-        assert(!projectionClass.isAbstract)
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
     }
 
     val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClass, entityClass)

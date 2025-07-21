@@ -32,7 +32,11 @@ internal class EntityClassMapper(
 ) : BaseEntityClassMapper {
 
     init {
-        assert(!projectionClassImpl.isAbstract && projectionClassImpl.isSubclassOf(projectionClass))
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
     }
 
     private var hasJoinFetch: Boolean = false
@@ -213,7 +217,15 @@ internal class EntityClassMapper(
             val projectionClassImpl: KClass<*>,
             val hadJoinFetch: Boolean,
             val projectedPropertyNames: Set<String>?
-        )
+        ) {
+            init {
+                assert(
+                    projectionClass != projectionClassImpl
+                            && !projectionClassImpl.isAbstract
+                            && projectionClassImpl.isSubclassOf(projectionClass)
+                )
+            }
+        }
 
         private val cache: MutableMap<CacheKey, EntityClassMapper> = mutableMapOf()
 

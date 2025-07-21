@@ -8,6 +8,7 @@ import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 internal class MapPropertyMapperUsingFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -17,6 +18,14 @@ internal class MapPropertyMapperUsingFetcher(
     private val projectionClassImpl: KClass<*>,
     private val propertyInfo: PropertyInfo
 ) : Mapper, PropertyMapper {
+
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
 
     override val propertyName: String get() = propertyInfo.propertyName
 

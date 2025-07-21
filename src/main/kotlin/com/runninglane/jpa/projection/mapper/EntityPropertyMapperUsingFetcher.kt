@@ -7,6 +7,7 @@ import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 internal class EntityPropertyMapperUsingFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -16,6 +17,14 @@ internal class EntityPropertyMapperUsingFetcher(
     private val projectionClassImpl: KClass<*>,
     private val propertyInfo: PropertyInfo
 ) : Mapper {
+
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
 
     override fun getParent(): Mapper? = parent
 

@@ -22,7 +22,11 @@ internal class ElementCollectionPropertyMapper(
 ) : SimplifiableMapper, PropertyMapper {
 
     init {
-        assert(!projectionClassImpl.isAbstract)
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
     }
 
     private val srcProp: KProperty1<out Any, *> = entityClass.memberProperties

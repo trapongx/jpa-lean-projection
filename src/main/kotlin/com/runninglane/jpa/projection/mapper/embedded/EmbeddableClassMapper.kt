@@ -29,6 +29,14 @@ internal class EmbeddableClassMapper(
     private val hadJoinFetch: Boolean
 ) : Mapper {
 
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
+
     private var hasJoinFetch: Boolean = false
 
     private val mappers: List<Mapper> = run {

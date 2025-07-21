@@ -6,6 +6,7 @@ import com.runninglane.jpa.projection.mapper.PropertyInfo
 import com.runninglane.jpa.projection.mapper.PropertyMapper
 import com.runninglane.jpa.projection.mapper.SimplifiableMapper
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 internal class MapPropertyMapper(
     private val projectorFactory: ProjectorFactory,
@@ -16,6 +17,14 @@ internal class MapPropertyMapper(
     private val propertyInfo: PropertyInfo,
     hadJoinFetch: Boolean
 ) : SimplifiableMapper, PropertyMapper {
+
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
 
     override val propertyName: String get() = propertyInfo.propertyName
 

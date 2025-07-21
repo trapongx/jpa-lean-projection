@@ -5,6 +5,7 @@ import com.runninglane.jpa.projection.ProjectorFactory
 import javax.persistence.EntityManager
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.isSubclassOf
 
 internal class EntityPropertyFetcher(
     private val projectorFactory: ProjectorFactory,
@@ -14,6 +15,14 @@ internal class EntityPropertyFetcher(
     private val propertyName: String,
     private val projections: List<Any>
 ) : Fetcher {
+
+    init {
+        assert(
+            projectionClass != projectionClassImpl
+                    && !projectionClassImpl.isAbstract
+                    && projectionClassImpl.isSubclassOf(projectionClass)
+        )
+    }
 
     val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClassImpl, entityClass)
 
