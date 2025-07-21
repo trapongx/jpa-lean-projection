@@ -104,7 +104,7 @@ internal class MapPropertyFetcher(
                         else -> {
                             mapper as EntityClassMapper
                             val id = mapper.readId(tuple)!!
-                            val instance = projectionIdentityMap.get(mapper.entityClass, mapper.projectionClass, id)
+                            val instance = projectionIdentityMap.get(mapper.entityClass, mapper.projectionClassImpl, id)
                                 ?: projectorFactory.projectionFactory
                                     .create(mapper.entityClass, mapper.projectionClass)
                                     .also { projectionIdentityMap.add(mapper.entityClass, mapper.projectionClassImpl, id, it) }
