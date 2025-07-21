@@ -2,14 +2,24 @@ package com.runninglane.jpa.projection
 
 import com.runninglane.dto.buddy.bytecode.PropertyDescriptor
 import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenerator
+import com.runninglane.jpa.projection.annotations.NoProjection
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.squareup.kotlinpoet.*
 import javax.persistence.EmbeddedId
 import javax.persistence.Id
+import javax.persistence.Transient
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-open class ProjectionCodeGenerator : KotlinCodeGenerator() {
+open class ProjectionCodeGenerator(
+    val embeddableWithoutExplicitIdsEqualityStrategy: NoIdsStrategy =
+        NoIdsStrategy.DONT_OVERRIDE,
+) : KotlinCodeGenerator() {
+
+    enum class NoIdsStrategy {
+        DONT_OVERRIDE,
+        USE_ALL_PROPERTIES_AS_IDS;
+    }
 
     class DataCollector(val entityClass: KClass<*>, val baseClass: KClass<*>) {
         lateinit var className: String
@@ -41,6 +51,10 @@ open class ProjectionCodeGenerator : KotlinCodeGenerator() {
         val baseClassPropertiesNames = dataCollector.baseClass.memberProperties.map { it.name }
         val idProperties = dataCollector.entityClass.memberProperties
             .filter { it.annotatedWith<Id>() || it.annotatedWith<EmbeddedId>() }
+            .takeIf { it.isNotEmpty() }
+            ?: if (embeddableWithoutExplicitIdsEqualityStrategy == NoIdsStrategy.USE_ALL_PROPERTIES_AS_IDS) {
+                dataCollector.entityClass.memberProperties.filterNot { it.annotatedWith<NoProjection>() || it.annotatedWith<Transient>() }
+            } else { emptyList() }
         val missingIdProperties = idProperties.filter { !baseClassPropertiesNames.contains(it.name) }
         missingIdProperties.forEach { property ->
             val typeName = property.returnType.asTypeName()
