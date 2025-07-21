@@ -111,12 +111,11 @@ internal class AnyToOnePropertyMapper(
         return when {
             isInversion -> throw SimplifiableMapper.exceptionUsingUnsimplifiedMapper
             else -> {
-                val idMapper =
-                    mapper!!.getChildren().filterIsInstance<SameTypePropertyMapper>().first { it.isIdProperty }
-                val (instance, result) = if (tuple[idMapper.tupleIndex] == null) {
+                val idMapper = mapper!!.getChildren().filterIsInstance<SameTypePropertyMapper>().first { it.isIdProperty }
+                val id = tuple[idMapper.tupleIndex]
+                val (instance, result) = if (id == null) {
                     null to (emptyList<Fetcher>() to null)
                 } else {
-                    val id = tuple[idMapper.tupleIndex]
                     val reusableInstance = projectionIdentityMap.get(srcPropType, propType, id)
 
                     when (reusableInstance) {
