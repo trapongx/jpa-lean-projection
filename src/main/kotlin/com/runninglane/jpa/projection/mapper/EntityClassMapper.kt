@@ -11,7 +11,6 @@ import com.runninglane.jpa.projection.mapper.embedded.EmbeddedPropertyMapper
 import com.runninglane.jpa.projection.mapper.map.MapPropertyMapper
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
-import com.runninglane.jpa.projection.reflection.findAnnotationInHierarchy
 import javax.persistence.*
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
@@ -44,7 +43,10 @@ internal class EntityClassMapper(
      */
     private val projectedProperties: List<KProperty1<out Any, *>> = projectionClassImpl.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
-        .filter { it.findAnnotationInHierarchy<NoProjection>() == null }
+        .filterNot {
+            it.annotatedWith<NoProjection>()
+                    || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.annotatedWith<NoProjection>() == true
+        }
         .let { allProps ->
             if (projectedPropertyNames != null) {
                 allProps.filter { projectedPropertyNames.contains(it.name) }
@@ -154,7 +156,15 @@ internal class EntityClassMapper(
                     idPropNamesNotMappedWithSameType.remove(it.propertyName)
                 }
             } else if (entityProp.annotatedWith<Embedded>() || entityProp.annotatedWith<EmbeddedId>()) {
-                EmbeddedPropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, prop.name, hadJoinFetch || hasJoinFetch)
+                EmbeddedPropertyMapper(
+                    projectorFactory,
+                    this,
+                    entityClass,
+                    projectionClass,
+                    projectionClassImpl,
+                    prop.name,
+                    hadJoinFetch || hasJoinFetch
+                )
             } else {
                 error("Unsupported projection of property `$propName` in class ${projectionClass.qualifiedName} from `${entityClass.qualifiedName}` to `${projectionClass.qualifiedName}`")
             }

@@ -11,7 +11,6 @@ import com.runninglane.jpa.projection.mapper.elementcollection.ElementCollection
 import com.runninglane.jpa.projection.mapper.map.MapPropertyMapper
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
-import com.runninglane.jpa.projection.reflection.findAnnotationInHierarchy
 import javax.persistence.*
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
@@ -33,9 +32,12 @@ internal class EmbeddableClassMapper(
     private var hasJoinFetch: Boolean = false
 
     private val mappers: List<Mapper> = run {
-        projectionClass.memberProperties
+        projectionClassImpl.memberProperties
             .filter { it.visibility == KVisibility.PUBLIC }
-            .filter { it.findAnnotationInHierarchy<NoProjection>() == null }
+            .filterNot {
+                it.annotatedWith<NoProjection>()
+                        || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.annotatedWith<NoProjection>() == true
+            }
             .map { prop ->
                 val propName = prop.name
                 val propType = prop.returnType.jvmErasure
@@ -46,7 +48,15 @@ internal class EmbeddableClassMapper(
                 val isMap = entityPropType.isSubclassOf(Map::class)
 
                 val mapper = if (entityProp.annotatedWith<Embedded>()) {
-                    EmbeddedPropertyMapper(projectorFactory, this, embeddableClass, projectionClassImpl, prop.name, hadJoinFetch || hasJoinFetch)
+                    EmbeddedPropertyMapper(
+                        projectorFactory,
+                        this,
+                        embeddableClass,
+                        projectionClass,
+                        projectionClassImpl,
+                        prop.name,
+                        hadJoinFetch || hasJoinFetch
+                    )
                 } else if (isMap && (entityProp.annotatedWith<OneToMany>() || entityProp.annotatedWith<ElementCollection>())) {
                     val propertyInfo = PropertyInfo(
                         prop,
@@ -54,7 +64,7 @@ internal class EmbeddableClassMapper(
                         propType,
                         PropertyAccessor.of(
                             projectorFactory.projectionFactory,
-                            embeddableClass, projectionClass, propName
+                            embeddableClass, projectionClassImpl, propName
                         ),
                         isCollection = false,
                         isList = false,

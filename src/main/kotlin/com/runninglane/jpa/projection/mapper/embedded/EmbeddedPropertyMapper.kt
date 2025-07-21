@@ -1,14 +1,9 @@
 package com.runninglane.jpa.projection.mapper.embedded
 
 import com.runninglane.jpa.projection.HydrationMaterial
-import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
-import com.runninglane.jpa.projection.mapper.Fetcher
-import com.runninglane.jpa.projection.mapper.Mapper
-import com.runninglane.jpa.projection.mapper.PropertyAccessor
-import com.runninglane.jpa.projection.mapper.PropertyMapper
-import com.runninglane.jpa.projection.mapper.TupleIndexCounter
+import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
@@ -23,6 +18,7 @@ internal class EmbeddedPropertyMapper(
     private val projectorFactory: ProjectorFactory,
     private val parent: Mapper?,
     entityClass: KClass<*>,
+    projectionClass: KClass<*>,
     projectionClassImpl: KClass<*>,
     override val propertyName: String,
     hadJoinFetch: Boolean,
@@ -45,11 +41,10 @@ internal class EmbeddedPropertyMapper(
         !isKotlinClass && srcProp.javaField?.type?.isPrimitive != true
     }
 
-    private val prop: KProperty1<out Any, *> = projectionClassImpl.memberProperties
+    private val prop: KProperty1<out Any, *> = projectionClass.memberProperties
         .first { it.name == propertyName }
 
     private val propType: KClass<*> = prop.returnType.jvmErasure
-        .let { projectorFactory.projectionFactory.getImplementation(srcPropType, it) }
 
     private val propTypeImpl = projectorFactory.projectionFactory.getImplementation(srcPropType, propType)
 

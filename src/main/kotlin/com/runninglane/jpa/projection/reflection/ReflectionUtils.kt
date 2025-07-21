@@ -66,26 +66,6 @@ internal fun <T> KClass<*>.getAnnotation(annotationType: KClass<T>): T? where T 
         }
         ?: java.getAnnotation(annotationType.java)
 
-internal inline fun <reified T> KProperty<*>.findAnnotationInHierarchy(): T? where T : Annotation {
-    // Check current property
-    getAnnotation<T>()?.let { return it }
-
-    // Get the containing class
-    val containingClass = this.javaField?.declaringClass?.kotlin
-        ?: (this.getter.javaClass.enclosingClass?.kotlin)
-        ?: return null
-
-    // Look through all superclasses and interfaces
-    containingClass.allSuperclasses.forEach { superclass ->
-        superclass.memberProperties
-            .firstOrNull { it.name == this.name }
-            ?.getAnnotation<T>()
-            ?.let { return it }
-    }
-
-    return null
-}
-
 fun KClass<*>.getPropertyAtPath(path: String): KProperty1<*, *> {
     return path.split('.')
         .fold(null as KProperty1<*, *>? to this) { (_, currentClass), name ->
