@@ -21,7 +21,7 @@ internal class EntityPropertyFetcher(
         val cb = entityManager.criteriaBuilder
         val query = cb.createTupleQuery()
         val root = query.from(entityClass.java)
-        val projector = projectorFactory.getOrCreate(entityClass, projectionClass)
+        val projector = projectorFactory.getOrCreate(entityClass, projectionClass, setOf(idProp.name, propertyName))
         query.multiselect(*projector.buildSelections(root))
         val projectionIds = projections.map { idProp.call(it) }.distinct()
         query.where(

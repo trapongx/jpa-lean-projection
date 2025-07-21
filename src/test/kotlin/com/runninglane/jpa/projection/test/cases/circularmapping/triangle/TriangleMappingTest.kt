@@ -1,16 +1,21 @@
-package com.runninglane.jpa.projection.test.cases.circularmapping
+package com.runninglane.jpa.projection.test.cases.circularmapping.triangle
 
 import com.runninglane.jpa.projection.queryWithProjection
 import com.runninglane.jpa.projection.test.BaseTest
-import com.runninglane.jpa.projection.test.cases.circularmapping.model.*
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.AEntity
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.AProjection
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.BEntity
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.BProjection
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.CEntity
+import com.runninglane.jpa.projection.test.cases.circularmapping.triangle.model.CProjection
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ContextConfiguration
 
 @DataJpaTest
-@ContextConfiguration(classes = [CircularMappingTestConfig::class])
-class CircularMappingTest : BaseTest() {
+@ContextConfiguration(classes = [TriangleMappingTestConfig::class])
+class TriangleMappingTest : BaseTest() {
 
     @Test
     fun `should correctly project tri-circular properties`() {

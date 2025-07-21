@@ -29,7 +29,7 @@ internal class EntityClassMapper(
     val projectionClass: KClass<*>,
     override val projectionClassImpl: KClass<*>,
     hadJoinFetch: Boolean,
-    projectedPropertyNames: List<String>? // Not null when used by fetcher
+    projectedPropertyNames: Set<String>? // Not null when used by fetcher
 ) : BaseEntityClassMapper {
 
     init {
@@ -202,7 +202,7 @@ internal class EntityClassMapper(
             val projectionClass: KClass<*>,
             val projectionClassImpl: KClass<*>,
             val hadJoinFetch: Boolean,
-            val projectedPropertyNames: List<String>?
+            val projectedPropertyNames: Set<String>?
         )
 
         private val cache: MutableMap<CacheKey, EntityClassMapper> = mutableMapOf()
@@ -213,7 +213,7 @@ internal class EntityClassMapper(
             entityClass: KClass<*>,
             projectionClass: KClass<*>,
             hadJoinFetch: Boolean,
-            projectedPropertyNames: List<String>?,
+            projectedPropertyNames: Set<String>?,
         ): BaseEntityClassMapper {
             val projectionClassImpl = projectorFactory.projectionFactory.getImplementation(entityClass, projectionClass)
 
@@ -248,7 +248,7 @@ internal class EntityClassMapper(
             entityClass: KClass<*>,
             projectionClass: KClass<*>,
             hadJoinFetch: Boolean,
-            projectedPropertyNames: List<String>?,
+            projectedPropertyNames: Set<String>?,
         ): EntityClassMapper = of(
             projectorFactory,
             null,

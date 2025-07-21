@@ -37,10 +37,10 @@ fun <E : Any, P : Any> ProjectableEntityManager.createProjectionQuery(projector:
         : ProjectionQueryBuilder<E, P> =
     ProjectionQueryBuilder(projector, this)
 
-inline fun <reified E : Any, reified P : Any> ProjectableEntityManager.createProjectionQuery(projectedPropertyNames: List<String>? = null)
+inline fun <reified E : Any, reified P : Any> ProjectableEntityManager.createProjectionQuery(projectedPropertyNames: Set<String>? = null)
         : ProjectionQueryBuilder<E, P> =
     ProjectionQueryBuilder(createProjector(projectedPropertyNames), this)
 
 inline fun <reified E : Any, reified P : Any> ProjectableEntityManager.createProjector(
-    projectedPropertyNames: List<String>? = null
+    projectedPropertyNames: Set<String>? = null
 ): Projector<E, P> = Projector(projectorFactory, E::class, P::class, projectedPropertyNames)

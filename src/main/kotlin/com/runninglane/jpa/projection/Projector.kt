@@ -13,7 +13,7 @@ class Projector<E : Any, P : Any>(
     private val projectorFactory: ProjectorFactory,
     val entityClass: KClass<E>,
     val projectionClass: KClass<P>,
-    projectedPropertyNames: List<String>? = null
+    projectedPropertyNames: Set<String>? = null
 ) {
     private val mapper: EntityClassMapper = EntityClassMapper.of(
         projectorFactory,

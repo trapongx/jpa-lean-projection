@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.test.cases.circularmapping
+package com.runninglane.jpa.projection.test.cases.circularmapping.triangle
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.domain.EntityScan
@@ -7,4 +7,4 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableAutoConfiguration
 @EntityScan
-class CircularMappingTestConfig
+class TriangleMappingTestConfig
