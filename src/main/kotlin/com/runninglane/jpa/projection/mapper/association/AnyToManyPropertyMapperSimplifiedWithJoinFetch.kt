@@ -1,7 +1,6 @@
 package com.runninglane.jpa.projection.mapper.association
 
 import com.runninglane.jpa.projection.HydrationMaterial
-import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
@@ -84,15 +83,15 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
     override fun checkAssociationInvertibility(
         entityClassOnRightSide: KClass<*>,
         projectionClassOnRightSide: KClass<*>,
-        propertyName: String
+        propertyPath: String
     ): ProbablyInvertible.AssociationInvertibilityCheckResult {
-        val (otherSrcPropType, otherSrcProp) = propertyName.split('.')
+        val (otherSrcPropType, otherSrcProp) = propertyPath.split('.')
             .fold(entityClassOnRightSide to null as KProperty1<*, *>?) { (currentClass, _), name ->
                 val nextProp = currentClass.memberProperties.first { it.name == name }
                 nextProp.returnType.jvmErasure to nextProp
             }
 
-        val otherPropType: KClass<*> = propertyName.split('.')
+        val otherPropType: KClass<*> = propertyPath.split('.')
             .fold(projectionClassOnRightSide) { currentClass, name ->
                 currentClass.memberProperties
                     .first { it.name == name }
@@ -102,7 +101,7 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
         val srcProp = entityClass.memberProperties.first { it.name == propertyInfo.propertyName }
 
         val checkMappedBy by lazy {
-            srcProp.getAnnotation<OneToMany>()?.let { it.mappedBy == propertyName } == true
+            srcProp.getAnnotation<OneToMany>()?.let { it.mappedBy == propertyPath } == true
                     && otherSrcProp?.annotatedWith<ManyToOne>() == true
         }
 

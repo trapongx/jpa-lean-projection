@@ -106,22 +106,22 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
     override fun checkAssociationInvertibility(
         entityClassOnRightSide: KClass<*>,
         projectionClassOnRightSide: KClass<*>,
-        propertyName: String
+        propertyPath: String
     ): ProbablyInvertible.AssociationInvertibilityCheckResult {
         val otherSrcProp: KProperty1<out Any, *> = entityClassOnRightSide.memberProperties
-            .first { it.name == propertyName }
+            .first { it.name == propertyPath }
 
         val otherSrcPropType = otherSrcProp.returnType.jvmErasure
 
         val otherPropType: KClass<*> = projectionClassOnRightSide.memberProperties
-            .first { it.name == propertyName }
+            .first { it.name == propertyPath }
             .returnType.jvmErasure
 
         val checkMappedBy by lazy {
             when {
                 srcProp.annotatedWith<OneToOne>() -> {
                     otherSrcProp.getAnnotation<OneToOne>()?.mappedBy == this.propertyName
-                            || srcProp.getAnnotation<OneToOne>()?.mappedBy == propertyName
+                            || srcProp.getAnnotation<OneToOne>()?.mappedBy == propertyPath
                 }
 
                 else -> otherSrcProp.getAnnotation<OneToMany>()?.mappedBy == this.propertyName

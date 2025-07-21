@@ -8,14 +8,14 @@ internal interface ProbablyInvertible {
 
     /**
      * Picture the bidirectional relationship between two entity classes.
-     * LEFT --[propertyName]--> RIGHT
+     * LEFT --[propertyPath]--> RIGHT
      * @param entityClassOnRightSide The entity class on the right side of the association.
      * @param projectionClassOnRightSide The projection class on the right side of the association.
-     * @param propertyName The name of the property on the left side of the association that causes relationship.
+     * @param propertyPath The name of the property on the left side of the association that causes relationship.
      */
     fun checkAssociationInvertibility(
         entityClassOnRightSide: KClass<*>,
         projectionClassOnRightSide: KClass<*>,
-        propertyName: String
+        propertyPath: String
     ): AssociationInvertibilityCheckResult
 }
