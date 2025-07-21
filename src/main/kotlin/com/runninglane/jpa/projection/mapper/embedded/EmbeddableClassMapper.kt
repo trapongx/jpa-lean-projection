@@ -96,7 +96,7 @@ internal class EmbeddableClassMapper(
                         projectionClassImpl,
                         propName,
                         hadJoinFetch || hasJoinFetch
-                    )
+                    ).simplify()
                 } else if (propType == entityPropType) {
                     SameTypePropertyMapper(projectorFactory, this, embeddableClass, projectionClassImpl, propName)
                 } else {

@@ -68,6 +68,61 @@ class ElementCollectionTest : BaseTest() {
     }
 
     @Test
+    fun `should project @ElementCollection of 2 Lists of String correctly`() {
+        val entity1 = EntityWithTwoListOfString().apply {
+            elements1 = listOf("Java", "Kotlin", "Spring")
+            elements2 = listOf("1", "2", "3")
+        }.also { entityManager.persist(it) }
+
+        val entity2 = EntityWithTwoListOfString().apply {
+            elements1 = listOf("Pascal", "Delphi", "C++")
+            elements2 = listOf("4", "5", "6")
+        }.also { entityManager.persist(it) }
+
+        val entity3 = EntityWithTwoListOfString().apply {
+            elements1 = listOf("Go", "Cobol", "Rust")
+            elements2 = listOf("7", "8", "9")
+        }.also { entityManager.persist(it) }
+
+        entityManager.flush()
+        entityManager.clear()
+
+        val entityManagerWithCounter = EntityManagerWithCounter(entityManager)
+
+        projectAndVerify(
+            EntityWithTwoListOfString::class,
+            EntityWithTwoListOfStringProjection::class,
+            3,
+            entityManagerWithCounter
+        ) { entities, projections ->
+            verifyEach(
+                entities,
+                projections,
+                EntityWithTwoListOfString::id,
+                EntityWithTwoListOfStringProjection::id,
+            ) { entity, projection ->
+                // Compare all properties with the entity
+                assertThat(projection.elements1).isEqualTo(entity.elements1)
+                assertThat(projection.elements2).isEqualTo(entity.elements2)
+            }
+
+            val projection1 = projections.first { it.id == entity1.id }
+            val projection2 = projections.first { it.id == entity2.id }
+            val projection3 = projections.first { it.id == entity3.id }
+
+            // Assert correct property values in projections
+            assertThat(projection1.elements1).isEqualTo(entity1.elements1).isEqualTo(listOf("Java", "Kotlin", "Spring"))
+            assertThat(projection1.elements2).isEqualTo(entity1.elements2).isEqualTo(listOf("1", "2", "3"))
+            assertThat(projection2.elements1).isEqualTo(entity2.elements1).isEqualTo(listOf("Pascal", "Delphi", "C++"))
+            assertThat(projection2.elements2).isEqualTo(entity2.elements2).isEqualTo(listOf("4", "5", "6"))
+            assertThat(projection3.elements1).isEqualTo(entity3.elements1).isEqualTo(listOf("Go", "Cobol", "Rust"))
+            assertThat(projection3.elements2).isEqualTo(entity3.elements2).isEqualTo(listOf("7", "8", "9"))
+        }
+
+        entityManagerWithCounter.assertQueryCount(1)
+    }
+
+    @Test
     fun `should project @ElementCollection of Collection of Int correctly`() {
         val entity1 = EntityWithCollectionOfInt().apply {
             elements = listOf(1, 2, 3)

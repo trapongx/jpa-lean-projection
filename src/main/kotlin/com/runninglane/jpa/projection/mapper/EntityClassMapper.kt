@@ -148,7 +148,7 @@ internal class EntityClassMapper(
                     projectionClassImpl,
                     propName,
                     hadJoinFetch || hasJoinFetch
-                )
+                ).simplify()
             } else if (propType == entityPropType) {
                 SameTypePropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, propName).also {
                     idPropNamesNotMappedWithSameType.remove(it.propertyName)
