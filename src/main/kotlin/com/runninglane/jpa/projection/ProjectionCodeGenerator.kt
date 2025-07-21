@@ -73,7 +73,7 @@ open class ProjectionCodeGenerator(
         }
 
         if (idProperties.isNotEmpty()) {
-            val idPropertyNames = idProperties.map { it.name }
+            val idPropertyNames = idProperties.map { it.name }.sorted()
 
             val className = dataCollector.className
             val escapedClassName = if (className.contains("$")) "`$className`" else className
@@ -99,13 +99,26 @@ open class ProjectionCodeGenerator(
                     .build()
             )
 
+            val toStringFuncReturnStatementParams = mutableListOf<String>()
+            val toStringFuncReturnStatement = buildString {
+                appendLine("""return %S + "(" +""")
+                toStringFuncReturnStatementParams.add(className)
+                idPropertyNames.forEachIndexed { i, name ->
+                    if (i > 0) {
+                        append("%S + ")
+                        toStringFuncReturnStatementParams.add(", ")
+                    }
+                    appendLine("""%S + "=" + %L +""")
+                    toStringFuncReturnStatementParams.add(name)
+                    toStringFuncReturnStatementParams.add(name)
+                }
+                appendLine("""")"""")
+            }
             updatedBuilder = updatedBuilder.addFunction(
                 FunSpec.builder("toString")
                     .addModifiers(KModifier.OVERRIDE)
                     .returns(String::class)
-                    .addStatement("""return "${className.replace("$", "\\$")}(" + ${
-                        idPropertyNames.joinToString(" + \", \" + \n    ") { "\"$it=\${this.$it}\"" }
-                    } + ${"\n"}")" """)
+                    .addStatement(toStringFuncReturnStatement, *toStringFuncReturnStatementParams.toTypedArray())
                     .build()
             )
         }
