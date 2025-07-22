@@ -16,6 +16,12 @@ class ProjectionFactory(
     private val implementationMap = mutableMapOf<Pair<KClass<*>, KClass<*>>, KClass<*>>()
 
     fun getImplementation(entityClass: KClass<*>, projectionClass: KClass<*>): KClass<*> {
+        if (projectionClass == entityClass) {
+            throw IllegalArgumentException(buildString {
+                append("Projection class cannot be same as entity class.")
+                append(" projectionClass: $projectionClass, entityClass: $entityClass")
+            })
+        }
         val key = projectionClass to entityClass
         return implementationMap.getOrPut(key) {
             dtoBuddy.implement(
