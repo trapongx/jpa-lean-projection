@@ -131,16 +131,6 @@ internal class EntityClassMapper(
                     propName,
                     hadJoinFetch || hasJoinFetch
                 ).simplify()
-            } else if (entityProp.annotatedWith<OneToOne>() || entityProp.annotatedWith<ManyToOne>()) {
-                AnyToOnePropertyMapper(
-                    projectorFactory,
-                    this,
-                    entityClass,
-                    projectionClass,
-                    projectionClassImpl,
-                    propName,
-                    hadJoinFetch || hasJoinFetch
-                ).simplify()
             } else if (entityProp.annotatedWith<ElementCollection>()) {
                 errorIfIdPropNamesNotExhausted(propName)
                 ElementCollectionPropertyMapper(
@@ -156,6 +146,16 @@ internal class EntityClassMapper(
                 SameTypePropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, propName).also {
                     idPropNamesNotMappedWithSameType.remove(it.propertyName)
                 }
+            } else if (entityProp.annotatedWith<OneToOne>() || entityProp.annotatedWith<ManyToOne>()) {
+                AnyToOnePropertyMapper(
+                    projectorFactory,
+                    this,
+                    entityClass,
+                    projectionClass,
+                    projectionClassImpl,
+                    propName,
+                    hadJoinFetch || hasJoinFetch
+                ).simplify()
             } else if (entityProp.annotatedWith<Embedded>() || entityProp.annotatedWith<EmbeddedId>()) {
                 EmbeddedPropertyMapper(
                     projectorFactory,

@@ -4,6 +4,8 @@ import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.mapper.*
+import com.runninglane.jpa.projection.mapper.sametype.SameTypeElementHolder
+import com.runninglane.jpa.projection.mapper.sametype.SameTypeElementMapper
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.runninglane.jpa.projection.reflection.getAnnotation
 import javax.persistence.ManyToOne
@@ -31,17 +33,25 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
 
     override val propertyName: String get() = propertyInfo.propertyName
 
-    private val projectionClassOnRightSideImpl = projectorFactory.projectionFactory
-        .getImplementation(entityClassOnRightSide, projectionClassOnRightSide)
+    private val projectionClassOnRightSideImpl = if (projectionClassOnRightSide == entityClassOnRightSide) {
+        projectionClassOnRightSide
+    } else {
+        projectorFactory.projectionFactory
+            .getImplementation(entityClassOnRightSide, projectionClassOnRightSide)
+    }
 
-    private val mapper: BaseEntityClassMapper = EntityClassMapper.of(
-        projectorFactory,
-        this,
-        entityClassOnRightSide,
-        projectionClassOnRightSide,
-        true,
-        null
-    )
+    private val mapper: Mapper = if (projectionClassOnRightSide == entityClassOnRightSide) {
+        SameTypeElementMapper(this)
+    } else {
+        EntityClassMapper.of(
+            projectorFactory,
+            this,
+            entityClassOnRightSide,
+            projectionClassOnRightSide,
+            true,
+            null
+        )
+    }
 
     override fun getChildren(): List<Mapper> = listOf(mapper)
 
@@ -60,25 +70,48 @@ internal class AnyToManyPropertyMapperSimplifiedWithJoinFetch(
         projectionIdentityMap: ProjectionIdentityMap
     ): Pair<List<Fetcher>, HydrationMaterial?> {
         return readTupleIntoCollection(propertyInfo, projection, parentProjection) {
-            if (mapper.isIdNull(tuple)) {
-                null to emptyList()
-            } else {
-                val id = mapper.readId(tuple)!!
-                val reusableInstance = projectionIdentityMap.get(entityClassOnRightSide, projectionClassOnRightSideImpl, id)
-
-                when (reusableInstance) {
-                    null -> {
-                        val newInstance = projectorFactory.projectionFactory
-                            .create(entityClassOnRightSide, projectionClassOnRightSide)
-                            .also {
-                                projectionIdentityMap.add(entityClassOnRightSide, projectionClassOnRightSideImpl, id, it)
-                            }
-                        val (fetchers, _) = mapper.readTuple(tuple, newInstance, projection, projectionIdentityMap)
-                        newInstance to fetchers
-                    }
-
-                    else -> reusableInstance to emptyList()
+            when (mapper) {
+                is SameTypeElementMapper -> {
+                    val holder = SameTypeElementHolder()
+                    val (fetchers, _) = mapper.readTuple(tuple, holder, projection, projectionIdentityMap)
+                    holder.value to fetchers
                 }
+
+                is BaseEntityClassMapper -> {
+                    if (mapper.isIdNull(tuple)) {
+                        null to emptyList()
+                    } else {
+                        val id = mapper.readId(tuple)!!
+                        val reusableInstance =
+                            projectionIdentityMap.get(entityClassOnRightSide, projectionClassOnRightSideImpl, id)
+
+                        when (reusableInstance) {
+                            null -> {
+                                val newInstance = projectorFactory.projectionFactory
+                                    .create(entityClassOnRightSide, projectionClassOnRightSide)
+                                    .also {
+                                        projectionIdentityMap.add(
+                                            entityClassOnRightSide,
+                                            projectionClassOnRightSideImpl,
+                                            id,
+                                            it
+                                        )
+                                    }
+                                val (fetchers, _) = mapper.readTuple(
+                                    tuple,
+                                    newInstance,
+                                    projection,
+                                    projectionIdentityMap
+                                )
+                                newInstance to fetchers
+                            }
+
+                            else -> reusableInstance to emptyList()
+                        }
+                    }
+                }
+
+                else -> error("Should not happen: ${mapper::class.qualifiedName} is not a BaseEntityClassMapper or SameTypeElementMapper")
             }
         }
     }

@@ -52,17 +52,7 @@ internal class EmbeddableClassMapper(
                 val entityPropType = entityProp.returnType.jvmErasure
                 val isMap = entityPropType.isSubclassOf(Map::class)
 
-                val mapper = if (entityProp.annotatedWith<Embedded>()) {
-                    EmbeddedPropertyMapper(
-                        projectorFactory,
-                        this,
-                        embeddableClass,
-                        projectionClass,
-                        projectionClassImpl,
-                        prop.name,
-                        hadJoinFetch || hasJoinFetch
-                    )
-                } else if (isMap && (entityProp.annotatedWith<OneToMany>() || entityProp.annotatedWith<ElementCollection>())) {
+                val mapper = if (isMap && (entityProp.annotatedWith<OneToMany>() || entityProp.annotatedWith<ElementCollection>())) {
                     val propertyInfo = PropertyInfo(
                         prop,
                         prop.name,
@@ -92,16 +82,8 @@ internal class EmbeddableClassMapper(
                         propName,
                         hadJoinFetch || hasJoinFetch
                     ).simplify()
-                } else if (entityProp.annotatedWith<OneToOne>() || entityProp.annotatedWith<ManyToOne>()) {
-                    AnyToOnePropertyMapper(
-                        projectorFactory,
-                        this,
-                        embeddableClass,
-                        projectionClass,
-                        projectionClassImpl,
-                        propName,
-                        hadJoinFetch || hasJoinFetch
-                    ).simplify()
+                } else if (propType == entityPropType) {
+                    SameTypePropertyMapper(projectorFactory, this, embeddableClass, projectionClassImpl, propName)
                 } else if (entityProp.annotatedWith<ElementCollection>()) {
                     ElementCollectionPropertyMapper(
                         projectorFactory,
@@ -112,8 +94,26 @@ internal class EmbeddableClassMapper(
                         propName,
                         hadJoinFetch || hasJoinFetch
                     ).simplify()
-                } else if (propType == entityPropType) {
-                    SameTypePropertyMapper(projectorFactory, this, embeddableClass, projectionClassImpl, propName)
+                } else if (entityProp.annotatedWith<OneToOne>() || entityProp.annotatedWith<ManyToOne>()) {
+                    AnyToOnePropertyMapper(
+                        projectorFactory,
+                        this,
+                        embeddableClass,
+                        projectionClass,
+                        projectionClassImpl,
+                        propName,
+                        hadJoinFetch || hasJoinFetch
+                    ).simplify()
+                } else if (entityProp.annotatedWith<Embedded>()) {
+                    EmbeddedPropertyMapper(
+                        projectorFactory,
+                        this,
+                        embeddableClass,
+                        projectionClass,
+                        projectionClassImpl,
+                        prop.name,
+                        hadJoinFetch || hasJoinFetch
+                    )
                 } else {
                     error("Unsupported projection of property `$propName` in class ${projectionClass.qualifiedName} from `${embeddableClass.qualifiedName}` to `${projectionClass.qualifiedName}`")
                 }
