@@ -6,8 +6,11 @@ import kotlin.reflect.KClass
 
 class ProjectionFactory(
     val dtoBuddy: DtoBuddy = DtoBuddy(
-        KotlinCodeGenBasedByteCodeStrategy(ProjectionCodeGenerator())
-    )
+        KotlinCodeGenBasedByteCodeStrategy(
+            ProjectionCodeGenerator()
+        )
+    ),
+    val noProjectionAnnotations: Set<KClass<out Annotation>> = emptySet()
 ) {
     // This is Map<Pair<projectionClass, entityClass>, implementationClass>
     private val implementationMap = mutableMapOf<Pair<KClass<*>, KClass<*>>, KClass<*>>()

@@ -40,8 +40,8 @@ internal class EmbeddableClassMapper(
         projectionClassImpl.memberProperties
             .filter { it.visibility == KVisibility.PUBLIC }
             .filterNot {
-                it.isAnnotatedForNoProjection()
-                        || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection() == true
+                it.isAnnotatedForNoProjection(projectorFactory)
+                        || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection(projectorFactory) == true
             }
             .map { prop ->
                 val propName = prop.name

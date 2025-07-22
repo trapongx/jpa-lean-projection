@@ -13,6 +13,7 @@ import kotlin.reflect.full.memberProperties
 open class ProjectionCodeGenerator(
     val embeddableWithoutExplicitIdsEqualityStrategy: NoIdsStrategy =
         NoIdsStrategy.DONT_OVERRIDE,
+    val noProjectionAnnotations: Set<KClass<out Annotation>> = emptySet()
 ) : KotlinCodeGenerator() {
 
     enum class NoIdsStrategy {
@@ -52,7 +53,7 @@ open class ProjectionCodeGenerator(
             .filter { it.annotatedWith<Id>() || it.annotatedWith<EmbeddedId>() }
             .takeIf { it.isNotEmpty() }
             ?: if (embeddableWithoutExplicitIdsEqualityStrategy == NoIdsStrategy.USE_ALL_PROPERTIES_AS_IDS) {
-                dataCollector.entityClass.memberProperties.filterNot { it.isAnnotatedForNoProjection() }
+                dataCollector.entityClass.memberProperties.filterNot { it.isAnnotatedForNoProjection(noProjectionAnnotations) }
             } else { emptyList() }
         val missingIdProperties = idProperties.filter { !baseClassPropertiesNames.contains(it.name) }
         missingIdProperties.forEach { property ->

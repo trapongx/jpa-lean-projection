@@ -45,8 +45,8 @@ internal class EntityClassMapper(
     private val projectedProperties: List<KProperty1<out Any, *>> = projectionClassImpl.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
         .filterNot {
-            it.isAnnotatedForNoProjection()
-                    || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection() == true
+            it.isAnnotatedForNoProjection(projectorFactory)
+                    || projectionClass.memberProperties.find { prop -> prop.name == it.name }?.isAnnotatedForNoProjection(projectorFactory) == true
         }
         .let { allProps ->
             if (projectedPropertyNames != null) {
