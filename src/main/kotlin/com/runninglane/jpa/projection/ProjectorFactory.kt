@@ -2,7 +2,7 @@ package com.runninglane.jpa.projection
 
 import kotlin.reflect.KClass
 
-class ProjectorFactory(val projectionFactory: ProjectionFactory) {
+open class ProjectorFactory(open val projectionFactory: ProjectionFactory) {
     private val projectorCache: MutableMap<Triple<KClass<*>, KClass<*>, Set<String>>, Projector<*, *>> = mutableMapOf()
 
     fun <E : Any, P : Any> getOrCreate(

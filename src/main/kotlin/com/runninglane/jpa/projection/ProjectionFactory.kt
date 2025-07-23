@@ -4,8 +4,8 @@ import com.runninglane.dto.buddy.DtoBuddy
 import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenBasedByteCodeStrategy
 import kotlin.reflect.KClass
 
-class ProjectionFactory(
-    val dtoBuddy: DtoBuddy = DtoBuddy(
+open class ProjectionFactory(
+    open val dtoBuddy: DtoBuddy = DtoBuddy(
         KotlinCodeGenBasedByteCodeStrategy(
             ProjectionCodeGenerator()
         )
