@@ -10,7 +10,7 @@ open class ProjectionFactory(
             ProjectionCodeGenerator()
         )
     ),
-    val noProjectionAnnotations: Set<KClass<out Annotation>> = emptySet()
+    open val noProjectionAnnotations: Set<KClass<out Annotation>> = emptySet()
 ) {
     // This is Map<Pair<projectionClass, entityClass>, implementationClass>
     private val implementationMap = mutableMapOf<Pair<KClass<*>, KClass<*>>, KClass<*>>()
