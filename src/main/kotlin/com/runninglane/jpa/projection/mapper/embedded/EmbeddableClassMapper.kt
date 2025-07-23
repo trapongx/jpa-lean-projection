@@ -57,10 +57,7 @@ internal class EmbeddableClassMapper(
                         prop,
                         prop.name,
                         propType,
-                        PropertyAccessor.of(
-                            projectorFactory.projectionFactory,
-                            embeddableClass, projectionClassImpl, propName
-                        ),
+                        PropertyAccessor.of(embeddableClass, projectionClassImpl, propName),
                         isCollection = false,
                         isList = false,
                         isSet = false,
@@ -83,7 +80,7 @@ internal class EmbeddableClassMapper(
                         hadJoinFetch || hasJoinFetch
                     ).simplify()
                 } else if (propType == entityPropType) {
-                    SameTypePropertyMapper(projectorFactory, this, embeddableClass, projectionClassImpl, propName)
+                    SameTypePropertyMapper(this, embeddableClass, projectionClassImpl, propName)
                 } else if (entityProp.annotatedWith<ElementCollection>()) {
                     ElementCollectionPropertyMapper(
                         projectorFactory,

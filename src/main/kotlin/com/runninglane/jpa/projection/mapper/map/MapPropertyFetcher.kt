@@ -43,7 +43,7 @@ internal class MapPropertyFetcher(
     private val mapper = AsMapper()
 
     inner class AsMapper : Mapper, ProbablyInvertible {
-        val idMapper = SameTypePropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, idProp.name)
+        val idMapper = SameTypePropertyMapper(this, entityClass, projectionClassImpl, idProp.name)
 
         val keyMapper = buildKeyOrValueMapper(true)
 

@@ -1,6 +1,5 @@
 package com.runninglane.jpa.projection.mapper
 
-import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.string.capitalizeFirst
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
@@ -14,7 +13,6 @@ internal interface PropertyAccessor {
         private val cache: MutableMap<Pair<KClass<*>, String>, PropertyAccessor> = mutableMapOf()
 
         fun of(
-            projectionFactory: ProjectionFactory,
             entityClass: KClass<*>,
             projectionClassImpl: KClass<*>,
             propertyName: String

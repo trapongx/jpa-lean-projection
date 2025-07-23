@@ -25,7 +25,7 @@ internal class EntityClassMapperUsingFetcher(
 
     val idProp: KProperty1<*, *> = getProjectionIdProp(projectionClass, entityClass)
 
-    private val idMapper = SameTypePropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, idProp.name)
+    private val idMapper = SameTypePropertyMapper(this, entityClass, projectionClassImpl, idProp.name)
 
     override fun getParent(): Mapper? = parent
 

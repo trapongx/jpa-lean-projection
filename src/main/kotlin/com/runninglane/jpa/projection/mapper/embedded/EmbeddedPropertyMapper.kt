@@ -50,7 +50,7 @@ internal class EmbeddedPropertyMapper(
 
     private val mapper: EmbeddableClassMapper = EmbeddableClassMapper(projectorFactory, this, srcPropType, propType, propTypeImpl, hadJoinFetch)
 
-    private val propertyAccessor: PropertyAccessor = PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName)
+    private val propertyAccessor: PropertyAccessor = PropertyAccessor.of(entityClass, projectionClassImpl, propertyName)
 
     override fun getParent(): Mapper? = parent
 

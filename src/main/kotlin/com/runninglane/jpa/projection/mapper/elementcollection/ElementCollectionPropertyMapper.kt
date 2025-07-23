@@ -66,7 +66,7 @@ internal class ElementCollectionPropertyMapper(
         prop,
         propertyName,
         propType,
-        accessor = PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName),
+        accessor = PropertyAccessor.of(entityClass, projectionClassImpl, propertyName),
         isCollection = isCollection,
         isList = isList,
         isSet = isSet,

@@ -51,9 +51,7 @@ internal class AnyToOnePropertyMapper(
             }?.isInvertible == true
     }
 
-    private val propertyAccessor: PropertyAccessor = PropertyAccessor.of(
-        projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName
-    )
+    private val propertyAccessor: PropertyAccessor = PropertyAccessor.of(entityClass, projectionClassImpl, propertyName)
 
     private val mapper: Mapper = when {
         isInversion -> AnyToOnePropertyMapperSimplifiedAsBackReference(

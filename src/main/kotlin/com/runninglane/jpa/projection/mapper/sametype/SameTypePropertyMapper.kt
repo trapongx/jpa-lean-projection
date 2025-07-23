@@ -1,6 +1,5 @@
 package com.runninglane.jpa.projection.mapper.sametype
 
-import com.runninglane.jpa.projection.ProjectorFactory
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.runninglane.jpa.projection.mapper.Mapper
 import com.runninglane.jpa.projection.mapper.PropertyAccessor
@@ -10,11 +9,9 @@ import javax.persistence.Id
 import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 
 internal class SameTypePropertyMapper(
-    projectorFactory: ProjectorFactory,
     parent: Mapper?,
     private val entityClass: KClass<*>,
     private val projectionClassImpl: KClass<*>,
@@ -32,7 +29,7 @@ internal class SameTypePropertyMapper(
         prop.let { it.annotatedWith<Id>() || it.annotatedWith<EmbeddedId>() }
     }
 
-    private val propertyAccessor = PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName)
+    private val propertyAccessor = PropertyAccessor.of(entityClass, projectionClassImpl, propertyName)
 
     override fun buildValueExpression(path: Path<*>): Expression<*> {
         return path.get<Any?>(propertyName)

@@ -59,7 +59,7 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
 
     private val idMappers = mapper.getChildren().filterIsInstance<SameTypePropertyMapper>().filter { it.isIdProperty }
 
-    private val propertyAccessor = PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propertyName)
+    private val propertyAccessor = PropertyAccessor.of(entityClass, projectionClassImpl, propertyName)
 
     override fun getParent(): Mapper? = parent
 

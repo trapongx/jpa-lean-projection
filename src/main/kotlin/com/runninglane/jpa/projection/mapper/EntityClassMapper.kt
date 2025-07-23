@@ -100,7 +100,7 @@ internal class EntityClassMapper(
                     prop,
                     prop.name,
                     propType,
-                    PropertyAccessor.of(projectorFactory.projectionFactory, entityClass, projectionClassImpl, propName),
+                    PropertyAccessor.of(entityClass, projectionClassImpl, propName),
                     isCollection = false,
                     isList = false,
                     isSet = false,
@@ -143,7 +143,7 @@ internal class EntityClassMapper(
                     hadJoinFetch || hasJoinFetch
                 ).simplify()
             } else if (propType == entityPropType) {
-                SameTypePropertyMapper(projectorFactory, this, entityClass, projectionClassImpl, propName).also {
+                SameTypePropertyMapper( this, entityClass, projectionClassImpl, propName).also {
                     idPropNamesNotMappedWithSameType.remove(it.propertyName)
                 }
             } else if (entityProp.annotatedWith<OneToOne>() || entityProp.annotatedWith<ManyToOne>()) {
