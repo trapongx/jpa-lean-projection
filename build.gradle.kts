@@ -7,6 +7,7 @@ val javaPersistenceVersion: String by project
 val junitJupiterVersion: String by project
 val dtoBuddyVersion: String by project
 val snapFacadeVersion: String by project
+val mockitoKotlinVersion: String by project
 
 plugins {
     java
@@ -44,6 +45,9 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+    // Mocking
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 
     // Persistence context for testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
