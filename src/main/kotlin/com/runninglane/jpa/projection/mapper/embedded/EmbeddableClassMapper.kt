@@ -3,7 +3,7 @@ package com.runninglane.jpa.projection.mapper.embedded
 import com.runninglane.jpa.projection.HydrationMaterial
 import com.runninglane.jpa.projection.ProjectionIdentityMap
 import com.runninglane.jpa.projection.ProjectorFactory
-import com.runninglane.jpa.projection.annotations.isAnnotatedForNoProjection
+import com.runninglane.jpa.projection.annotation.isAnnotatedForNoProjection
 import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.mapper.assert.ProjectionClassAssertion
 import com.runninglane.jpa.projection.mapper.association.AnyToManyPropertyMapper

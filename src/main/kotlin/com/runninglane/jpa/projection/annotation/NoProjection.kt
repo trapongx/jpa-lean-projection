@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.annotations
+package com.runninglane.jpa.projection.annotation
 
 import java.lang.annotation.Inherited
 

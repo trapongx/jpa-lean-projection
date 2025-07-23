@@ -2,7 +2,7 @@ package com.runninglane.jpa.projection
 
 import com.runninglane.dto.buddy.bytecode.PropertyDescriptor
 import com.runninglane.dto.buddy.bytecode.codegen.KotlinCodeGenerator
-import com.runninglane.jpa.projection.annotations.isAnnotatedForNoProjection
+import com.runninglane.jpa.projection.annotation.isAnnotatedForNoProjection
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import com.squareup.kotlinpoet.*
 import javax.persistence.EmbeddedId

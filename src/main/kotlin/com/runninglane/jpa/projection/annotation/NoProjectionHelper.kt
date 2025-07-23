@@ -1,4 +1,4 @@
-package com.runninglane.jpa.projection.annotations
+package com.runninglane.jpa.projection.annotation
 
 import com.runninglane.jpa.projection.ProjectorFactory
 import javax.persistence.Transient
