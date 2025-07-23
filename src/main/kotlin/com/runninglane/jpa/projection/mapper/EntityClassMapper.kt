@@ -55,18 +55,23 @@ internal class EntityClassMapper(
                 allProps
             }
         }
-        .sortedBy { prop ->
-            val srcProp = entityClass.memberProperties.find { it.name == prop.name }
-                ?: error("Projected property `${prop.name}` not found in class `${entityClass.qualifiedName}`")
-            when {
-                srcProp.annotatedWith<Id>() || srcProp.annotatedWith<EmbeddedId>() -> 0
-                srcProp.annotatedWith<Embedded>() -> 1
-                srcProp.annotatedWith<OneToMany>() || srcProp.annotatedWith<ManyToMany>() -> 2
-                srcProp.annotatedWith<ElementCollection>() -> 3
-                srcProp.annotatedWith<OneToOne>() || srcProp.annotatedWith<ManyToOne>() -> 4
-                else -> 5
-            }
-        }
+        .sortedWith(
+            compareBy(
+                { prop ->
+                    val srcProp = entityClass.memberProperties.find { it.name == prop.name }
+                        ?: error("Projected property `${prop.name}` not found in class `${entityClass.qualifiedName}`")
+                    when {
+                        srcProp.annotatedWith<Id>() || srcProp.annotatedWith<EmbeddedId>() -> 0
+                        srcProp.annotatedWith<Embedded>() -> 1
+                        srcProp.annotatedWith<OneToMany>() || srcProp.annotatedWith<ManyToMany>() -> 2
+                        srcProp.annotatedWith<ElementCollection>() -> 3
+                        srcProp.annotatedWith<OneToOne>() || srcProp.annotatedWith<ManyToOne>() -> 4
+                        else -> 5
+                    }
+                },
+                { prop -> prop.name }
+            )
+        )
 
     private val mappers: List<Mapper> = run {
         val idPropNamesNotMappedWithSameType: MutableSet<String> = entityClass.memberProperties
