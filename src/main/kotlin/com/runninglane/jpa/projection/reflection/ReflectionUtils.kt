@@ -42,6 +42,16 @@ internal inline fun <reified T> KProperty<*>.annotatedWith(): Boolean where T : 
 internal inline fun <reified T> KProperty<*>.getAnnotation(): T? where T : Annotation =
     findAnnotation() ?: javaField?.getAnnotation(T::class.java) ?: getter.getAnnotation()
 
+internal fun <T> KProperty<*>.annotatedWith(annotationType: KClass<T>): Boolean where T : Annotation =
+    findAnnotations(annotationType).isNotEmpty()
+            || getter.findAnnotations(annotationType).isNotEmpty()
+            || javaField?.getAnnotation(annotationType.java) != null
+
+internal fun <T> KProperty<*>.getAnnotation(annotationType: KClass<T>): T? where T : Annotation =
+    findAnnotations(annotationType).firstOrNull()
+        ?: getter.findAnnotations(annotationType).firstOrNull()
+        ?: javaField?.getAnnotation(annotationType.java)
+
 // KFunction extensions
 
 internal inline fun <reified T> KFunction<*>.annotatedWith(): Boolean where T : Annotation =
