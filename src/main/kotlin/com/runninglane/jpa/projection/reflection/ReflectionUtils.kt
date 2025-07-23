@@ -66,7 +66,7 @@ internal fun <T> KClass<*>.getAnnotation(annotationType: KClass<T>): T? where T 
         }
         ?: java.getAnnotation(annotationType.java)
 
-fun KClass<*>.getPropertyAtPath(path: String): KProperty1<*, *> {
+internal fun KClass<*>.getPropertyAtPath(path: String): KProperty1<*, *> {
     return path.split('.')
         .fold(null as KProperty1<*, *>? to this) { (_, currentClass), name ->
             val nextProp = currentClass.memberProperties.firstOrNull { it.name == name }
