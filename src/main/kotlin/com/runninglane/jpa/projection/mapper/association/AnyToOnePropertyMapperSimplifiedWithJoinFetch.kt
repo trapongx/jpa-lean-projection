@@ -28,9 +28,9 @@ internal class AnyToOnePropertyMapperSimplifiedWithJoinFetch(
     private val entityClass: KClass<*>,
     private val projectionClass: KClass<*>,
     private val projectionClassImpl: KClass<*>,
-    private val propertyName: String,
+    override val propertyName: String,
     hadJoinFetch: Boolean
-) : Mapper, ProbablyInvertible {
+) : PropertyMapper, ProbablyInvertible {
 
     init {
         assert(ProjectionClassAssertion.isCorrectSemantics(entityClass, projectionClass, projectionClassImpl))
