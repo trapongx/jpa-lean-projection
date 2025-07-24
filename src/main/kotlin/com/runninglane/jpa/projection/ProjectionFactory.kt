@@ -15,7 +15,7 @@ open class ProjectionFactory(
     // This is Map<Pair<projectionClass, entityClass>, implementationClass>
     private val implementationMap = mutableMapOf<Pair<KClass<*>, KClass<*>>, KClass<*>>()
 
-    fun getImplementation(entityClass: KClass<*>, projectionClass: KClass<*>): KClass<*> {
+    open fun getImplementation(entityClass: KClass<*>, projectionClass: KClass<*>): KClass<*> {
         if (projectionClass == entityClass) {
             throw IllegalArgumentException(buildString {
                 append("Projection class cannot be same as entity class.")
@@ -32,7 +32,7 @@ open class ProjectionFactory(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> create(entityClass: KClass<*>, projectionClass: KClass<T>): T {
+    open fun <T : Any> create(entityClass: KClass<*>, projectionClass: KClass<T>): T {
         return dtoBuddy.create(getImplementation(entityClass, projectionClass))
     }
 }
