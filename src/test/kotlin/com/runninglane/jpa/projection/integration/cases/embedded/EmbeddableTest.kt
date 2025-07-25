@@ -165,7 +165,7 @@ class EmbeddableTest : BaseTest() {
         projectAndExpectException(
             EntityWithTwoPlainEmbeddedValues::class,
             EntityWithTwoPlainEmbeddedValuesProjectionWithInvertedNullability::class,
-            InvocationTargetException::class,
+            NullPointerException::class,
             entityManagerWithCounter
         )
 
