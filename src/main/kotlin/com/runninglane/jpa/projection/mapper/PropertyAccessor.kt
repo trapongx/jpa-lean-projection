@@ -33,9 +33,11 @@ internal interface PropertyAccessor {
 
                 val returnType by lazy { propertyGetter?.returnType ?: getterFunction?.returnType }
 
-                val getter: (Any) -> Any? = propertyGetter?.let { { target -> it.call(target) } }
-                    ?: getterFunction?.let { { target -> it.call(target) } }
-                    ?: error("Accessible getter for property `$propertyName` not found in class `${projectionClassImpl.qualifiedName}`")
+                val getter: (Any) -> Any? = propertyGetter?.let {
+                    { target -> callAndCatchInvocationTargetException(it, projectionClassImpl, target) }
+                } ?: getterFunction?.let {
+                    { target -> callAndCatchInvocationTargetException(it, projectionClassImpl, target) }
+                } ?: error("Accessible getter for property `$propertyName` not found in class `${projectionClassImpl.qualifiedName}`")
 
                 val propertySetter: KMutableProperty1.Setter<*, *>? = projectionClassImpl.memberProperties
                     .filterIsInstance<KMutableProperty1<*, *>>()
@@ -50,19 +52,11 @@ internal interface PropertyAccessor {
                         .firstOrNull { it.name == setterName && it.parameters.size == 2 && it.parameters[1].type == returnType }
                 }
 
-                fun catchInvocationTargetException(block: () -> Unit) {
-                    try {
-                        block()
-                    } catch (e: InvocationTargetException) {
-                        throw e.targetException
-                    }
-                }
                 val setter: (Any, Any?) -> Unit = propertySetter?.let {
-                    { target, value -> catchInvocationTargetException { it.call(target, value) } }
+                    { target, value -> callAndCatchInvocationTargetException(it, projectionClassImpl, target, value) }
                 } ?: setterFunction?.let {
-                    { target, value -> catchInvocationTargetException { it.call(target, value) } }
+                    { target, value -> callAndCatchInvocationTargetException(it, projectionClassImpl, target, value) }
                 } ?: error("Accessible setter for property `$propertyName` not found in class `${projectionClassImpl.qualifiedName}`")
-
 
                 PropertyAccessorImpl(getter, setter)
             }
@@ -75,5 +69,19 @@ private class PropertyAccessorImpl(val getter: (Any) -> Any?, val setter: (Any, 
 
     override fun set(obj: Any, value: Any?) {
         setter(obj, value)
+    }
+}
+
+fun <R> callAndCatchInvocationTargetException(callable: KCallable<R>, declaringClass: KClass<*>, target: Any, vararg params: Any?): R {
+    return try {
+        callable.call(target, *params)
+    } catch (t: Throwable) {
+        if (t is InvocationTargetException && t.targetException is NullPointerException) {
+            throw NullPointerException("Cannot set null value to property '${callable.name}' of object ${target::class.qualifiedName}.")
+        } else if (t is IllegalArgumentException && t.message?.contains("declaring class") == true) {
+            val message = "${t.message}. Object is ${target::class.qualifiedName} but declaring class is ${declaringClass.qualifiedName}."
+            throw IllegalArgumentException(message, t.cause)
+        }
+        throw t
     }
 }
