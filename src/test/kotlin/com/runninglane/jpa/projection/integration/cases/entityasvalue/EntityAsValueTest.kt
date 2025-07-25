@@ -123,4 +123,28 @@ class EntityAsValueTest : BaseTest() {
         }
     }
 
+    @Test
+    fun `should correctly create projections that hold property of real entity types with null values`() {
+        val entityB = EntityB().apply {
+            c = null
+            dList = null
+            eList = null
+            dCollection = null
+            eToString = null
+        }.also { entityManager.persist(it) }
+        entityManager.flush()
+        entityManager.clear()
+
+        val projection = entityManager.queryWithProjection<EntityB, ProjectionB>(
+            predicateBuilder = { cb, _, root ->
+                cb.equal(root.get<String>("id"), entityB.id)
+            }
+        ).single()
+
+        assertThat(projection.c).isNull()
+        assertThat(projection.dList).isEmpty()
+        assertThat(projection.eList).isEmpty()
+        assertThat(projection.dCollection).isEmpty()
+        assertThat(projection.eToString).isEmpty()
+    }
 }

@@ -121,7 +121,7 @@ internal class MapPropertyFetcher(
                     }
                 }
 
-                (entry.key to entry.value) to fetchers.toList()
+                entry.key?.let { it to entry.value } to fetchers.toList()
             }
         }
 
