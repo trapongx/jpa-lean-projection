@@ -94,8 +94,10 @@ open class ProjectionCodeGenerator(
                 FunSpec.builder("hashCode")
                     .addModifiers(KModifier.OVERRIDE)
                     .returns(Int::class)
-                    .addStatement(idPropertyNames.joinToString(" +\n    ") { "(this.$it?.hashCode() ?: 0)" }
-                        .let { "return $it" })
+                    .addStatement(idPropertyNames.joinToString(" +\n    ") {
+                        val isNullable = it in baseClassPropertiesNames && !idProperties.first { prop -> prop.name == it }.returnType.isMarkedNullable
+                        if (isNullable) "(this.$it?.hashCode() ?: 0)" else "this.$it.hashCode()"
+                    }.let { "return $it" })
                     .build()
             )
 
