@@ -70,8 +70,7 @@ internal interface PropertyAccessor {
     }
 }
 
-private class PropertyAccessorImpl(
-    val getter: (Any) -> Any?, val setter: (Any, Any?) -> Unit) : PropertyAccessor {
+private class PropertyAccessorImpl(val getter: (Any) -> Any?, val setter: (Any, Any?) -> Unit) : PropertyAccessor {
     override fun get(obj: Any): Any? = getter(obj)
 
     override fun set(obj: Any, value: Any?) {
