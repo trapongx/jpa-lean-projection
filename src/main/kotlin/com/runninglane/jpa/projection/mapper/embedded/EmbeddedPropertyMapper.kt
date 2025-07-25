@@ -7,6 +7,8 @@ import com.runninglane.jpa.projection.mapper.*
 import com.runninglane.jpa.projection.reflection.annotatedWith
 import javax.persistence.Tuple
 import javax.persistence.criteria.Expression
+import javax.persistence.criteria.From
+import javax.persistence.criteria.JoinType
 import javax.persistence.criteria.Path
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -59,7 +61,7 @@ internal class EmbeddedPropertyMapper(
     override fun hasJoinFetch(): Boolean = false
 
     override fun buildSelections(path: Path<*>, tupleIndexCounter: TupleIndexCounter): List<Expression<*>> {
-        val embeddedPath = path.get<Any>(propertyName)
+        val embeddedPath = (path as From<*, *>).join<Any, Any>(propertyName, JoinType.LEFT)
         return mapper.buildSelections(embeddedPath, tupleIndexCounter)
     }
 
