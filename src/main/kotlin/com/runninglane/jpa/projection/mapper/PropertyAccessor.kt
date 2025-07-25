@@ -1,6 +1,7 @@
 package com.runninglane.jpa.projection.mapper
 
 import com.runninglane.jpa.projection.string.capitalizeFirst
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -49,9 +50,18 @@ internal interface PropertyAccessor {
                         .firstOrNull { it.name == setterName && it.parameters.size == 2 && it.parameters[1].type == returnType }
                 }
 
-                val setter: (Any, Any?) -> Unit = propertySetter?.let { { target, value -> it.call(target, value) } }
-                    ?: setterFunction?.let { { target, value -> it.call(target, value) } }
-                    ?: error("Accessible setter for property `$propertyName` not found in class `${projectionClassImpl.qualifiedName}`")
+                fun catchInvocationTargetException(block: () -> Unit) {
+                    try {
+                        block()
+                    } catch (e: InvocationTargetException) {
+                        throw e.targetException
+                    }
+                }
+                val setter: (Any, Any?) -> Unit = propertySetter?.let {
+                    { target, value -> catchInvocationTargetException { it.call(target, value) } }
+                } ?: setterFunction?.let {
+                    { target, value -> catchInvocationTargetException { it.call(target, value) } }
+                } ?: error("Accessible setter for property `$propertyName` not found in class `${projectionClassImpl.qualifiedName}`")
 
 
                 PropertyAccessorImpl(getter, setter)
