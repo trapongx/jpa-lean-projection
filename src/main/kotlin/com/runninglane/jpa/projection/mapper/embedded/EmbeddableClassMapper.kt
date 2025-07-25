@@ -138,10 +138,6 @@ internal class EmbeddableClassMapper(
         projection: Any,
         parentProjection: Any?,
         projectionIdentityMap: ProjectionIdentityMap
-    ): Pair<List<Fetcher>, HydrationMaterial?> {
-        val fetchers = mappers.flatMap { mapper ->
-            mapper.readTuple(tuple, projection, parentProjection, projectionIdentityMap).first
-        }
-        return fetchers to HydrationMaterial(projection, parentProjection)
-    }
+    ): Pair<List<Fetcher>, HydrationMaterial?> =
+        mappers.map { it.readTuple(tuple, projection, parentProjection, projectionIdentityMap) }.flatten()
 }
