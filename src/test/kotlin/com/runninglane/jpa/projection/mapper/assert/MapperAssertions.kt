@@ -2,6 +2,7 @@ package com.runninglane.jpa.projection.mapper.assert
 
 import com.runninglane.jpa.projection.mapper.EntityClassMapper
 import com.runninglane.jpa.projection.mapper.Mapper
+import com.runninglane.jpa.projection.mapper.assert.MapperFormatter.formatTree
 import com.runninglane.jpa.projection.mapper.sametype.SameTypePropertyMapper
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
@@ -100,24 +101,42 @@ internal class MapperAssertion<T : Mapper>(
      * Asserts that the given mapper matches this expectation
      */
     fun assert(actualMapper: Mapper) {
-        // Check the mapper type
-        assertEquals(expectedType.java, actualMapper::class.java,
-            "Expected mapper type does not match. Expected: $expectedType, Actual: ${actualMapper::class}")
+        assertInternal(actualMapper) {
+            // Check the mapper type
+            assertEquals(
+                expectedType.java, actualMapper::class.java,
+                "Expected mapper type does not match. Expected: $expectedType, Actual: ${actualMapper::class}"
+            )
 
-        // Check children count if specified
-        val children = actualMapper.getChildren()
-        childrenCount?.let { expected ->
-            assertEquals(expected, children.size, "Expected $expected children but found ${children.size}")
-        }
+            // Check children count if specified
+            val children = actualMapper.getChildren()
+            childrenCount?.let { expected ->
+                assertEquals(expected, children.size, "Expected $expected children but found ${children.size}")
+            }
 
-        // Store mapper for direct assertions and run self assertions
-        @Suppress("UNCHECKED_CAST")
-        this.mapper = actualMapper as T
-        selfAssertions.forEach { it(this.mapper!!) }
+            // Store mapper for direct assertions and run self assertions
+            @Suppress("UNCHECKED_CAST")
+            this.mapper = actualMapper as T
+            selfAssertions.forEach { it(this.mapper!!) }
 
-        childAssertions.forEachIndexed { i, childAssertion ->
-            val childMapper = if (children.size > i) children[i] else error(childAssertion.noMoreChildren(i + 1))
-            childAssertion.assert(childMapper)
+            childAssertions.forEachIndexed { i, childAssertion ->
+                val childMapper = if (children.size > i) children[i] else error(childAssertion.noMoreChildren(i + 1))
+                childAssertion.assert(childMapper)
+            }
+
+            (children.size - childAssertions.size).takeIf { it > 0 }?.let { diff ->
+                val firstUnassertedChild = children[childAssertions.size]
+                val message = buildString {
+                    appendLine("Unexpected child ${firstUnassertedChild::class.simpleName} at index ${childAssertions.size}")
+                    val rootMapper = generateSequence(firstUnassertedChild) { it.getParent() }.last()
+                    append(formatTree(rootMapper, 0, firstUnassertedChild))
+                }
+                throw MapperAssertionError(message, null, firstUnassertedChild)
+            }
+
+            if (childAssertions.size < children.size) {
+                error("Expected ${childAssertions.size} children but found ${children.size}")
+            }
         }
     }
 
@@ -131,10 +150,12 @@ internal class MapperAssertion<T : Mapper>(
     ) {
         @Suppress("UNCHECKED_CAST")
         fun assert(mapper: Mapper) {
-            when (assertion) {
-                is MapperAssertion<*> -> assertion.assert(mapper)
-                is Function1<*, *> -> (assertion as (Mapper) -> Unit)(mapper)
-                else -> error("Unsupported assertion type: ${assertion::class}")
+            assertInternal(mapper) {
+                when (assertion) {
+                    is MapperAssertion<*> -> assertion.assert(mapper)
+                    is Function1<*, *> -> (assertion as (Mapper) -> Unit)(mapper)
+                    else -> error("Unsupported assertion type: ${assertion::class}")
+                }
             }
         }
 
@@ -161,4 +182,21 @@ internal fun expectEntityClassMapper(
     return MapperAssertion(EntityClassMapper::class, childrenCount).apply {
         self { mapper -> config(this, mapper) }
     }
+}
+
+
+internal fun assertInternal(currentMapper: Mapper, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: MapperAssertionError) {
+        throw e
+    } catch (t: Throwable) {
+        val rootMapper = generateSequence(currentMapper) { it.getParent() }.last()
+        val message = buildString {
+            appendLine(t.message ?: "Mapper assertion failed")
+            append(formatTree(rootMapper, 0, currentMapper))
+        }
+        throw MapperAssertionError(message, t, currentMapper)
+    }
+
 }

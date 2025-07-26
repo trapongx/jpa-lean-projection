@@ -24,9 +24,9 @@ import kotlin.reflect.jvm.jvmErasure
 internal class EmbeddableClassMapper(
     private val projectorFactory: ProjectorFactory,
     private val parent: Mapper?,
-    private val embeddableClass: KClass<*>,
-    private val projectionClass: KClass<*>,
-    private val projectionClassImpl: KClass<*>,
+    val embeddableClass: KClass<*>,
+    val projectionClass: KClass<*>,
+    val projectionClassImpl: KClass<*>,
     private val hadJoinFetch: Boolean
 ) : Mapper {
 
