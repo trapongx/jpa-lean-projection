@@ -64,7 +64,7 @@ class Projector<E : Any, P : Any>(
                 } else {
                     commonReadTuple(tuple) {
                         fetchers.addAll(it.first)
-                        hydrationMaterial = it.second!!
+                        hydrationMaterial = it.second
                     }
                 }
             }

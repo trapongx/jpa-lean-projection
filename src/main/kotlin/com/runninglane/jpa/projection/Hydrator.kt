@@ -43,17 +43,22 @@ internal class Hydrator private constructor(val mapper: EntityClassMapper) {
             projectionIdentityMap: ProjectionIdentityMap
         ): Pair<Boolean, List<Fetcher>> {
             val parentIds = readParentIds(tuple)
-            if (parentIds == currentParentIds) {
-                val (fetchers, _) = mapperUsingJoinFetch.readTuple(
-                    tuple,
-                    hydrationMaterialFromPreviousTuple!!.projection,
-                    hydrationMaterialFromPreviousTuple.parentProjection,
-                    projectionIdentityMap
-                )
-                return Pair(true, fetchers)
+            return if (parentIds == currentParentIds) {
+                val fetchers = if (hydrationMaterialFromPreviousTuple != null) {
+                    mapperUsingJoinFetch.readTuple(
+                        tuple,
+                        hydrationMaterialFromPreviousTuple.projection,
+                        hydrationMaterialFromPreviousTuple.parentProjection,
+                        projectionIdentityMap
+                    ).first
+                } else {
+                    // Can happen when the lower component in projection chains has been found in former groups of cartesian products
+                    emptyList()
+                }
+                Pair(true, fetchers)
             } else {
                 currentParentIds = parentIds
-                return Pair(false, emptyList())
+                Pair(false, emptyList())
             }
         }
     }
