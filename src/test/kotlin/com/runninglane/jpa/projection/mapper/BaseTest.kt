@@ -2,6 +2,7 @@ package com.runninglane.jpa.projection.mapper
 
 import com.runninglane.jpa.projection.ProjectionFactory
 import com.runninglane.jpa.projection.ProjectorFactory
+import com.runninglane.jpa.projection.annotation.NoProjectionHelperTest.CustomNoProjection
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import kotlin.reflect.KClass
@@ -13,24 +14,29 @@ internal abstract class BaseTest {
         projectionClass: KClass<*>,
         mockProjectionClassImpl: KClass<*>,
         mockProjectionInstance: Any,
+        noProjectionAnnotations: Set<KClass<out Annotation>>? = null,
         mappings: Map<Pair<KClass<*>, KClass<*>>, Pair<KClass<*>, () -> Any>>? = null
     ): EntityClassMapper = createEntityClassMapperWithMocks(
-        entityClass, projectionClass,
+        entityClass, projectionClass, noProjectionAnnotations,
         mapOf(Pair(
             (entityClass to projectionClass),
             (mockProjectionClassImpl to { mockProjectionInstance })
         )) + (mappings ?: emptyMap())
     )
 
-    fun createEntityClassMapperWithMocks(
+    open fun createEntityClassMapperWithMocks(
         entityClass: KClass<*>,
         projectionClass: KClass<*>,
+        noProjectionAnnotations: Set<KClass<out Annotation>>? = null,
         mappings: Map<Pair<KClass<*>, KClass<*>>, Pair<KClass<*>, () -> Any>>? = null
     ): EntityClassMapper {
         // Given
         val projectionFactory = mock(ProjectionFactory::class.java)
         val projectorFactory = mock(ProjectorFactory::class.java)
         `when`(projectorFactory.projectionFactory).thenReturn(projectionFactory)
+        noProjectionAnnotations?.also {
+            `when`(projectionFactory.noProjectionAnnotations).thenReturn(it)
+        }
 
         // Mock the projection class implementation
         // This works because the methods in ProjectionFactory are marked as 'open'
