@@ -8,6 +8,8 @@ interface ProjectableEntityManager : EntityManager {
 
     val projectorFactory: ProjectorFactory
 
+    val projectionPostProcessor: ((Any) -> Unit)?
+
     fun <E : Any, P : Any> queryWithProjection(
         entityClass: KClass<E>,
         projectionClass: KClass<P>,

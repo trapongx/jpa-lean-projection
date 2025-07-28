@@ -6,7 +6,8 @@ import kotlin.reflect.KClass
 
 class ProjectableEntityManagerImpl(
     override val projectorFactory: ProjectorFactory,
-    delegate: EntityManager
+    delegate: EntityManager,
+    override val projectionPostProcessor: ((Any) -> Unit)? = null
 ) : ProjectableEntityManager, EntityManager by delegate {
 
     override fun <E : Any, P : Any> queryWithProjection(
@@ -37,7 +38,7 @@ class ProjectableEntityManagerImpl(
         return createQuery(query).also { cq ->
             firstResult?.also { cq.firstResult = it }
             maxResults?.also { cq.maxResults = it }
-        }.resultList.projected(projector, this)
+        }.resultList.projected(projector, this, projectionPostProcessor)
     }
 
 }

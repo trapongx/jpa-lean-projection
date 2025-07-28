@@ -28,4 +28,8 @@ internal class ProjectionIdentityMap {
         }
         return map[Triple(entityClass, projectionClassImpl, id)]
     }
+
+    fun postProcessProjections(projectionPostProcessor: (Any) -> Unit) {
+        map.values.forEach(projectionPostProcessor)
+    }
 }

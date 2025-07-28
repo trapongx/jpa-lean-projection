@@ -6,22 +6,29 @@ import javax.persistence.EntityManager
 import javax.persistence.criteria.*
 
 fun EntityManager.projectable(
-    projectorFactory: ProjectorFactory = ProjectorFactory(ProjectionFactory())
+    projectorFactory: ProjectorFactory = ProjectorFactory(ProjectionFactory()),
+    projectionPostProcessor: ((Any) -> Unit)? = null
 ) = when (this) {
     is ProjectableEntityManager -> this
-    else -> ProjectableEntityManagerImpl(projectorFactory, this)
+    else -> ProjectableEntityManagerImpl(projectorFactory, this, projectionPostProcessor)
 }
 
-fun EntityManager.projectable(dtoBuddy: DtoBuddy) = when (this) {
+fun EntityManager.projectable(
+    dtoBuddy: DtoBuddy,
+    projectionPostProcessor: ((Any) -> Unit)? = null
+) = when (this) {
     is ProjectableEntityManager -> {
-        require(this.projectorFactory.projectionFactory.dtoBuddy == dtoBuddy) {
+        require(this.projectorFactory.projectionFactory.dtoBuddy === dtoBuddy) {
             "The DtoBuddy instance passed in is not the same as the one used by the ProjectableEntityManager."
+        }
+        require(this.projectionPostProcessor === projectionPostProcessor) {
+            "The projectionPostProcessor instance passed in is not the same as the one used by the ProjectableEntityManager."
         }
         this
     }
     else -> {
         val projectorFactory = ProjectorFactory(ProjectionFactory(dtoBuddy))
-        ProjectableEntityManagerImpl(projectorFactory, this)
+        ProjectableEntityManagerImpl(projectorFactory, this, projectionPostProcessor)
     }
 }
 

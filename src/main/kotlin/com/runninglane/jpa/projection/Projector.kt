@@ -27,8 +27,8 @@ class Projector<E : Any, P : Any>(
         mapper.buildSelections(path).toTypedArray()
 
     @Suppress("UNCHECKED_CAST")
-    fun readTuples(tuples: List<Tuple>, entityManager: EntityManager): List<P> =
-        readTuples(tuples, entityManager, ProjectionIdentityMap(), false).first as List<P>
+    fun readTuples(tuples: List<Tuple>, entityManager: EntityManager, projectionPostProcessor: ((Any) -> Unit)? = null): List<P> =
+        readTuples(tuples, entityManager, ProjectionIdentityMap(), false, projectionPostProcessor).first as List<P>
 
     /**
      * If providedProjections is not null, all of its elements are assumed to exist in projectionBank.
@@ -37,7 +37,8 @@ class Projector<E : Any, P : Any>(
         tuples: List<Tuple>,
         entityManager: EntityManager,
         projectionIdentityMap: ProjectionIdentityMap,
-        isFetching: Boolean
+        isFetching: Boolean,
+        projectionPostProcessor: ((Any) -> Unit)? = null
     ): Pair<List<Any>, List<Fetcher>> {
         val projections = mutableListOf<Any>()
 
@@ -88,10 +89,12 @@ class Projector<E : Any, P : Any>(
                     }.last()
                 }
 
+            projectionPostProcessor?.also { projectionIdentityMap.postProcessProjections(it) }
+
             projections.toList() to emptyList()
         }
     }
 }
 
-fun <P : Any> List<Tuple>.projected(projector: Projector<*, P>, entityManager: EntityManager): List<P> =
-    projector.readTuples(this, entityManager)
+fun <P : Any> List<Tuple>.projected(projector: Projector<*, P>, entityManager: EntityManager, projectionPostProcessor: ((Any) -> Unit)? = null): List<P> =
+    projector.readTuples(this, entityManager, projectionPostProcessor)
