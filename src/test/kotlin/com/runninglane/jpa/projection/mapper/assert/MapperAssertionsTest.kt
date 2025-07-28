@@ -97,7 +97,7 @@ internal class MapperAssertionsTest : BaseTest() {
         }
 
         // When/Then
-        assertThrows<AssertionFailedError> {
+        assertThrows<MapperAssertionError> {
             mapperExpectation.assert(entityClassMapper)
         }
     }

@@ -6,13 +6,13 @@ import com.runninglane.jpa.projection.mapper.PropertyMapper
 import com.runninglane.jpa.projection.mapper.embedded.EmbeddableClassMapper
 
 internal object MapperFormatter {
-    fun formatTree(mapper: Mapper, level: Int, firstErrorNode: Mapper): String {
+    fun formatTree(mapper: Mapper, level: Int, firstErrorNode: Mapper, errorType: MapperAssertionError.Type): String {
         return buildString {
             append("--".repeat(level))
-            append(if (mapper == firstErrorNode) "[E]-" else "[+]-")
+            append(if (mapper == firstErrorNode) "[${errorType.code}]-" else "[+]-")
             appendLine(format(mapper))
             mapper.getChildren().forEach {
-                append(formatTree(it, level + 1, firstErrorNode))
+                append(formatTree(it, level + 1, firstErrorNode, errorType))
             }
         }
     }

@@ -110,9 +110,6 @@ internal class MapperAssertion<T : Mapper>(
 
             // Check children count if specified
             val children = actualMapper.getChildren()
-            childrenCount?.let { expected ->
-                assertEquals(expected, children.size, "Expected $expected children but found ${children.size}")
-            }
 
             // Store mapper for direct assertions and run self assertions
             @Suppress("UNCHECKED_CAST")
@@ -124,18 +121,17 @@ internal class MapperAssertion<T : Mapper>(
                 childAssertion.assert(childMapper)
             }
 
-            (children.size - childAssertions.size).takeIf { it > 0 }?.let { diff ->
-                val firstUnassertedChild = children[childAssertions.size]
+            if (children.size > childAssertions.size) {
+                val firstUnexpectedChild = children[childAssertions.size]
                 val message = buildString {
-                    appendLine("Unexpected child ${firstUnassertedChild::class.simpleName} at index ${childAssertions.size}")
-                    val rootMapper = generateSequence(firstUnassertedChild) { it.getParent() }.last()
-                    append(formatTree(rootMapper, 0, firstUnassertedChild))
+                    appendLine("Unexpected child ${firstUnexpectedChild::class.simpleName} at index ${childAssertions.size}")
+                    val rootMapper = generateSequence(firstUnexpectedChild) { it.getParent() }.last()
+                    append(formatTree(rootMapper, 0, firstUnexpectedChild, MapperAssertionError.Type.UNEXPECTED))
                 }
-                throw MapperAssertionError(message, null, firstUnassertedChild)
-            }
-
-            if (childAssertions.size < children.size) {
-                error("Expected ${childAssertions.size} children but found ${children.size}")
+                throw MapperAssertionError(message, null, firstUnexpectedChild, MapperAssertionError.Type.UNEXPECTED)
+            } else if (childAssertions.size > children.size) {
+                val message = "Expected ${childAssertions.size} children but found ${children.size}"
+                throw MapperAssertionError(message, null, actualMapper, MapperAssertionError.Type.MISSING_CHILDREN)
             }
         }
     }
@@ -194,9 +190,9 @@ internal fun assertInternal(currentMapper: Mapper, block: () -> Unit) {
         val rootMapper = generateSequence(currentMapper) { it.getParent() }.last()
         val message = buildString {
             appendLine(t.message ?: "Mapper assertion failed")
-            append(formatTree(rootMapper, 0, currentMapper))
+            append(formatTree(rootMapper, 0, currentMapper, MapperAssertionError.Type.ERROR))
         }
-        throw MapperAssertionError(message, t, currentMapper)
+        throw MapperAssertionError(message, t, currentMapper, MapperAssertionError.Type.ERROR)
     }
 
 }
