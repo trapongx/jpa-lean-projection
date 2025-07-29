@@ -103,8 +103,8 @@ open class ProjectionCodeGenerator(
 
             val toStringFuncReturnStatementParams = mutableListOf<String>()
             val toStringFuncReturnStatement = buildString {
-                appendLine("""return %S + "(" +""")
-                toStringFuncReturnStatementParams.add(className)
+                appendLine("""return %L + "(" +""")
+                toStringFuncReturnStatementParams.add("super.toString()")
                 idPropertyNames.forEachIndexed { i, name ->
                     if (i > 0) {
                         append("%S + ")
