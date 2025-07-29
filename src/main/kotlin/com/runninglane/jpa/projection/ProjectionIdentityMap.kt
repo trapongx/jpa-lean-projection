@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 internal class ProjectionIdentityMap {
 
     private val map: MutableMap<Triple<KClass<*>, KClass<*>, Any>, Any> = mutableMapOf()
+    private val fetched: HashSet<Any> = hashSetOf()
 
     fun add(entityClass: KClass<*>, projectionClassImpl: KClass<*>, id: Any, projection: Any) {
         assert(!projectionClassImpl.isAbstract) {
@@ -31,5 +32,13 @@ internal class ProjectionIdentityMap {
 
     fun postProcessProjections(projectionPostProcessor: (Any) -> Unit) {
         map.values.forEach(projectionPostProcessor)
+    }
+
+    fun rememberFetched(key: Any) {
+        fetched.add(key)
+    }
+
+    fun isFetched(key: Any): Boolean {
+        return fetched.contains(key)
     }
 }

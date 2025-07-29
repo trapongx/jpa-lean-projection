@@ -49,19 +49,14 @@ internal class EntityClassMapperUsingFetcher(
         projectionIdentityMap: ProjectionIdentityMap
     ): Pair<List<Fetcher>, HydrationMaterial?> {
         val fetcher: Fetcher? = run {
-            if (isIdNull(tuple))
+            if (isIdNull(tuple) || projectionIdentityMap.isFetched(projection))
                 return@run null
 
-            val id = readId(tuple)!!
+            idMapper.readTuple(tuple, projection, parentProjection, projectionIdentityMap)
 
-            val reusableInstance = projectionIdentityMap.get(entityClass, projectionClassImpl, id)
-            if (reusableInstance != null)
-                return@run null
-
-            val newInstance = projectorFactory.projectionFactory.create(entityClass, projectionClass).also {
-                projectionIdentityMap.add(entityClass, projectionClassImpl, id, it)
+            EntityClassFetcher(projectorFactory, entityClass, projectionClass, listOf(projection)).also {
+                projectionIdentityMap.rememberFetched(projection)
             }
-            EntityClassFetcher(projectorFactory, entityClass, projectionClass, listOf(newInstance))
         }
 
         return listOfNotNull(fetcher) to null
