@@ -42,6 +42,9 @@ internal class MapPropertyMapperUsingFetcher(
         parentProjection: Any?,
         projectionIdentityMap: ProjectionIdentityMap
     ): Pair<List<Fetcher>, HydrationMaterial?> {
+        if (projectionIdentityMap.isFetched(projection to propertyInfo.propertyName))
+            return emptyList<Fetcher>() to null
+
         val fetcher = MapPropertyFetcher(
             projectorFactory,
             entityClass,
@@ -51,6 +54,7 @@ internal class MapPropertyMapperUsingFetcher(
             propertyInfo,
             listOf(projection)
         )
+        projectionIdentityMap.rememberFetched(projection to propertyInfo.propertyName)
         return listOf(fetcher) to null
     }
 }
